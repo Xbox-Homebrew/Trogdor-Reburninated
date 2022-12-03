@@ -37,6 +37,8 @@ const string rootDir = "sd:/apps/Trogdor-RB/";
 const string rootDir = "cardb:/Trogdor-RB/";
 #elif defined(THREEDS)
 const string rootDir = "sdmc:/3ds/Trogdor-RB/";
+#elif defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
+const string rootDir = "";
 #else
 const string rootDir = "";
 #endif
@@ -75,6 +77,9 @@ constexpr auto DEFAULT_HEIGHT = 240;
 #elif defined(SDL1)
 constexpr auto DEFAULT_WIDTH = 320;
 constexpr auto DEFAULT_HEIGHT = 240;
+#elif defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
+constexpr auto DEFAULT_WIDTH = 1920;
+constexpr auto DEFAULT_HEIGHT = 1080;
 #else
 constexpr auto DEFAULT_WIDTH = 640;
 constexpr auto DEFAULT_HEIGHT = 480;

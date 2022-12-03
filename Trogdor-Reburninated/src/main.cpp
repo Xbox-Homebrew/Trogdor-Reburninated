@@ -5,6 +5,10 @@
 #include "media_objects_init.h"
 #include "level_data.h"
 
+using namespace Windows::System;
+using namespace Windows::Foundation;
+using namespace Windows::Storage;
+
 bool renderOverlay;
 bool showOverlay = true;
 bool menuMusicHasStarted = false;
@@ -26,8 +30,16 @@ int main(int argv, char** args) {
 #endif
 		return 1;
 	}
-#if defined(WII_U) || defined(VITA) || defined(SWITCH) || defined(WII) || defined(GAMECUBE) || defined(ANDROID) || defined(PSP) || defined(THREEDS) || defined(XBOX)
+#if defined(WII_U) || defined(VITA) || defined(SWITCH) || defined(WII) || defined(GAMECUBE) || defined(ANDROID) || defined(PSP) || defined(THREEDS) || defined(XBOX) || (defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP))
 	SDL_ShowCursor(SDL_DISABLE);
+#endif
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
+	//save data in the apps localstate folder for uwp left out for now as the save functionality seems to be incomplete
+	/*Platform::String^ local_folder = Windows::Storage::ApplicationData::Current->LocalFolder->Path + L"\\";
+	std::wstring ws(local_folder->Data());
+	rootDir = std::string(ws.begin(), ws.end());*/
+	//handle back button presses 
+	SDL_SetHint(SDL_HINT_WINRT_HANDLE_BACK_BUTTON, "1");
 #endif
 	InitializeController();
 
@@ -82,6 +94,7 @@ int main(int argv, char** args) {
 			showOverlay = !showOverlay;
 		}
 		/* Handle Window Size Changes */
+#if !(defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP))
 		if (windowSizeChanged) {
 #if !(defined(WII_U) || defined(VITA) || defined(SWITCH) || defined(WII) || defined(GAMECUBE) || defined(ANDROID) || defined(PSP) || defined(THREEDS) || defined(XBOX)) && !defined(SDL1)
 			if (scalingType % 2 == 1 && SDL_GetWindowSurface(window)->w >= appWidth && SDL_GetWindowSurface(window)->h >= appHeight) {
@@ -127,7 +140,7 @@ int main(int argv, char** args) {
 			}
 			windowSizeChanged = false;
 		}
-
+#endif
 		/* Clear Screen */
 #if !defined(SDL1)
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);

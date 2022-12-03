@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Assets">
+      <UniqueIdentifier>2562e5ff-10d7-4e11-aefd-21376defb607</UniqueIdentifier>
+      <Extensions>bmp;fbx;gif;jpg;jpeg;tga;tiff;tif;png</Extensions>
+    </Filter>
+    <Image Include="Assets\LockScreenLogo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SplashScreen.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square150x150Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Wide310x150Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\StoreLogo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="..\Trogdor-Reburninated\release-resources\logo_icon_pc_64.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Trogdor-Reburninated\src\classes.cpp" />
+    <ClCompile Include="..\Trogdor-Reburninated\src\config.cpp" />
+    <ClCompile Include="..\Trogdor-Reburninated\src\cutscenes.cpp" />
+    <ClCompile Include="..\Trogdor-Reburninated\src\general.cpp" />
+    <ClCompile Include="..\Trogdor-Reburninated\src\input.cpp" />
+    <ClCompile Include="..\Trogdor-Reburninated\src\main.cpp" />
+    <ClCompile Include="..\Trogdor-Reburninated\src\media_objects_init.cpp" />
+    <ClCompile Include="..\Trogdor-Reburninated\src\menu.cpp" />
+    <ClCompile Include="..\Trogdor-Reburninated\src\on_open_and_close.cpp" />
+    <ClCompile Include="..\Trogdor-Reburninated\src\sound_logic.cpp" />
+    <ClCompile Include="..\Trogdor-Reburninated\src\sprite_objects.cpp" />
+    <ClCompile Include="..\Trogdor-Reburninated\src\text_objects.cpp" />
+    <ClCompile Include="..\Trogdor-Reburninated\src\window.cpp" />
+    <ClCompile Include="..\SDL2\src\main\winrt\SDL_winrt_main_NonXAML.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Trogdor-Reburninated\src\classes.h" />
+    <ClInclude Include="..\Trogdor-Reburninated\src\config.h" />
+    <ClInclude Include="..\Trogdor-Reburninated\src\cutscenes.h" />
+    <ClInclude Include="..\Trogdor-Reburninated\src\general.h" />
+    <ClInclude Include="..\Trogdor-Reburninated\src\include.h" />
+    <ClInclude Include="..\Trogdor-Reburninated\src\input.h" />
+    <ClInclude Include="..\Trogdor-Reburninated\src\level_data.h" />
+    <ClInclude Include="..\Trogdor-Reburninated\src\main.h" />
+    <ClInclude Include="..\Trogdor-Reburninated\src\media_objects_init.h" />
+    <ClInclude Include="..\Trogdor-Reburninated\src\menu.h" />
+    <ClInclude Include="..\Trogdor-Reburninated\src\on_open_and_close.h" />
+    <ClInclude Include="..\Trogdor-Reburninated\resource.h" />
+    <ClInclude Include="..\Trogdor-Reburninated\src\sound_logic.h" />
+    <ClInclude Include="..\Trogdor-Reburninated\src\sprite_objects.h" />
+    <ClInclude Include="..\Trogdor-Reburninated\src\text_objects.h" />
+    <ClInclude Include="..\Trogdor-Reburninated\src\window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Trogdor-Reburninated\cpp.hint" />
+    <None Include="..\SDL2\src\main\winrt\SDL2-WinRTResource_BlankCursor.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\Trogdor-Reburninated\Trogdor-Reburninated.rc" />
+    <ResourceCompile Include="..\SDL2\src\main\winrt\SDL2-WinRTResources.rc" />
+  </ItemGroup>
+</Project>

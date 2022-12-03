@@ -33,7 +33,7 @@ void scaleAppByGame() {
 }
 
 void scaleGameAndApp() {
-#if defined(WII_U) || defined(VITA) || defined(SWITCH) || defined(WII) || defined(GAMECUBE) || defined(PSP) || defined(THREEDS) || defined(XBOX)
+#if defined(WII_U) || defined(VITA) || defined(SWITCH) || defined(WII) || defined(GAMECUBE) || defined(PSP) || defined(THREEDS) || defined(XBOX) || (defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP))
 	windowWidth = DEFAULT_WIDTH;
 	windowHeight = DEFAULT_HEIGHT;
 #elif !defined(SDL1)
