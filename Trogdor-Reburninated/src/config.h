@@ -109,7 +109,13 @@ const string rootDir = "";
 const string rootDir = "";
 #endif
 
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
+//the save path is variable in UWP and also should not be stored with the games executable files
+extern string savePath;
+#define SAVE_FILE savePath.c_str()
+#elif
 #define SAVE_FILE (rootDir+"save.bin").c_str()
+#endif
 
 #define CREATE_DEBUG_FILE(str) \
 	saveBin = SDL_RWFromFile((rootDir + str).c_str(), "w+b"); \
@@ -154,5 +160,4 @@ constexpr auto DEFAULT_HEIGHT = 480;
 extern void saveGameState_settings();
 extern void loadGameState();
 extern void loadGameState_partial();
-
 #endif

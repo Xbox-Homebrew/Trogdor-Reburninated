@@ -38,11 +38,9 @@ int main(int argv, char** args) {
 	SDL_ShowCursor(SDL_DISABLE);
 #endif
 #if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
-	//save data in the apps localstate folder for uwp left out for now as the save functionality seems to be incomplete
-	/*Platform::String^ local_folder = Windows::Storage::ApplicationData::Current->LocalFolder->Path + L"\\";
+	Platform::String^ local_folder = Windows::Storage::ApplicationData::Current->LocalFolder->Path + L"\\save.bin";
 	std::wstring ws(local_folder->Data());
-	rootDir = std::string(ws.begin(), ws.end());*/
-	//handle back button presses 
+	savePath = std::string(ws.begin(), ws.end());
 	SDL_SetHint(SDL_HINT_WINRT_HANDLE_BACK_BUTTON, "1");
 #endif
 	InitializeController();

@@ -5,6 +5,12 @@
 Uint16 DEFAULT_WIDTH = 640;
 Uint16 DEFAULT_HEIGHT = 480;
 #endif
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
+//initialise variable with an empty string 
+string savePath = "";
+#endif
+
+
 
 void saveGameState_settings() {
 	gameState.settings_general = getSettingsGeneral();
