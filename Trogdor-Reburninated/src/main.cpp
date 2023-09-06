@@ -10,13 +10,17 @@ using namespace Windows::Foundation;
 using namespace Windows::Storage;
 
 bool renderOverlay;
+#if defined(THREEDS)
+bool showOverlay = false;
+#else
 bool showOverlay = true;
+#endif
 bool menuMusicHasStarted = false;
 
 int main(int argv, char** args) {
 	isRunning = true;
 	g_sceneState = 0;
-	g_frameState = 1;
+	g_frameState.set(1);
 	systemSpecificOpen();
 
 	/* Initialize SDL */
@@ -46,8 +50,10 @@ int main(int argv, char** args) {
 #if !(defined(WII_U) || defined(VITA) || defined(SWITCH) || defined(WII) || defined(GAMECUBE) || defined(ANDROID) || defined(PSP) || defined(THREEDS) || defined(XBOX))
 	try {
 #endif
-	loadSaveFile();
+	loadGameState_partial();
+	scalingType = gameState.settings_cosmetic.scaling;
 	InitializeDisplay();
+	loadGameState();
 
 #if defined(ANDROID)
 	/* Initialize SDL_ttf, fonts, text objects, and sprite objects (already done for other systems in InitializeDisplay() via setScaling() */
@@ -81,7 +87,7 @@ int main(int argv, char** args) {
 		if (keyPressed(INPUT_Y) && (g_sceneState == 2 || g_sceneState == 3 || GM.manually_paused)) {
 			do {
 				scalingType = (scalingType + 1) % 4;
-				menu_main.setOptionChoice(MENU_SCALING_INDEX, scalingType);
+				menu_cosmetic.setOptionChoice(MENU_SCALING_INDEX, scalingType);
 			} while (MENU_SCALING->choiceIsAllowed[scalingType] == false);
 			windowSizeChanged = true;
 		}
@@ -121,6 +127,12 @@ int main(int argv, char** args) {
 			updateText(&text_4_score_val, to_string(GM.score));
 			updateText(&text_4_mans_val, to_string(GM.mans));
 			updateText(&text_4_level_val, to_string(GM.level));
+			menu_main.updateOptionPositions();
+			menu_difficulty.updateOptionPositions();
+			menu_cosmetic.updateOptionPositions();
+			menu_other.updateOptionPositions();
+			menu_cheats.updateOptionPositions();
+			menu_quit.updateOptionPositions();
 			if (gameHiResMult < 2) {
 				MM.maxPageNum = MAX_PAGE_NUM_LOWRES;
 				updateText(&text_3_page, "("+to_string(MM.page)+"/"+to_string(MM.maxPageNum)+")");
@@ -180,144 +192,123 @@ int main(int argv, char** args) {
 		switch (g_sceneState) {
 			/* Loading Screen */
 			case 0:
-				switch (g_frameState) {
-					case 1:
+				if (g_frameState.atStartOfFrame) {
+					switch (g_frameState.frame) {
+						case 1:
+							text_0_loading_censor_rect.x = text_0_loading.dstrect.x;
+							break;
+						case 2:
+							text_0_loading_censor_rect.x += font_serif_white_14.textChars['l' - 32].dstrect.w;
+							break;
+						case 3:
+							text_0_loading_censor_rect.x += font_serif_white_14.textChars['o' - 32].dstrect.w;
+							break;
+						case 4:
+							text_0_loading_censor_rect.x += font_serif_white_14.textChars['a' - 32].dstrect.w;
+							break;
+						case 5:
+							text_0_loading_censor_rect.x += font_serif_white_14.textChars['d' - 32].dstrect.w;
+							break;
+						case 6:
+							text_0_loading_censor_rect.x += font_serif_white_14.textChars['i' - 32].dstrect.w;
+							break;
+						case 7:
+							text_0_loading_censor_rect.x += font_serif_white_14.textChars['n' - 32].dstrect.w;
+							break;
+						case 8:
+							text_0_loading_censor_rect.x += font_serif_white_14.textChars['g' - 32].dstrect.w;
+							break;
+						case 9:
+							text_0_loading_censor_rect.x += font_serif_white_14.textChars['.' - 32].dstrect.w;
+							break;
+						case 10:
+							InitializeSound();
+							text_0_loading_censor_rect.x += font_serif_white_14.textChars['.' - 32].dstrect.w;
+							break;
+						case 11:
+							InitializeMusic();
+							text_0_loading_censor_rect.x += font_serif_white_14.textChars['.' - 32].dstrect.w;
+							break;
+						case 13:
+							InitializeSFX();
+							break;
+						default:
+							break;
+					}
+				}
+				if (g_frameState.frame <= 16) {
+					if (g_frameState.frame <= 15) {
 						renderText(text_0_loading, font_serif_white_14);
-						text_0_loading_censor_rect.x = text_0_loading.dstrect.x;
-						g_frameState++;
-						break;
-					case 2:
-						renderText(text_0_loading, font_serif_white_14);
-						text_0_loading_censor_rect.x += font_serif_white_14.textChars['l' - 32].dstrect.w;
-						g_frameState++;
-						break;
-					case 3:
-						renderText(text_0_loading, font_serif_white_14);
-						text_0_loading_censor_rect.x += font_serif_white_14.textChars['o' - 32].dstrect.w;
-						g_frameState++;
-						break;
-					case 4:
-						renderText(text_0_loading, font_serif_white_14);
-						text_0_loading_censor_rect.x += font_serif_white_14.textChars['a' - 32].dstrect.w;
-						g_frameState++;
-						break;
-					case 5:
-						renderText(text_0_loading, font_serif_white_14);
-						text_0_loading_censor_rect.x += font_serif_white_14.textChars['d' - 32].dstrect.w;
-						g_frameState++;
-						break;
-					case 6:
-						renderText(text_0_loading, font_serif_white_14);
-						text_0_loading_censor_rect.x += font_serif_white_14.textChars['i' - 32].dstrect.w;
-						g_frameState++;
-						break;
-					case 7:
-						renderText(text_0_loading, font_serif_white_14);
-						text_0_loading_censor_rect.x += font_serif_white_14.textChars['n' - 32].dstrect.w;
-						g_frameState++;
-						break;
-					case 8:
-						renderText(text_0_loading, font_serif_white_14);
-						text_0_loading_censor_rect.x += font_serif_white_14.textChars['g' - 32].dstrect.w;
-						g_frameState++;
-						break;
-					case 9:
-						renderText(text_0_loading, font_serif_white_14);
-						text_0_loading_censor_rect.x += font_serif_white_14.textChars['.' - 32].dstrect.w;
-						g_frameState++;
-						break;
-					case 10:
-						InitializeSound();
-						renderText(text_0_loading, font_serif_white_14);
-						text_0_loading_censor_rect.x += font_serif_white_14.textChars['.' - 32].dstrect.w;
-						g_frameState++;
-						break;
-					case 11:
-						InitializeMusic();
-						renderText(text_0_loading, font_serif_white_14);
-						text_0_loading_censor_rect.x += font_serif_white_14.textChars['.' - 32].dstrect.w;
-						g_frameState++;
-						break;
-					case 12:
-						renderText(text_0_loading, font_serif_white_14);
-						g_frameState++;
-						break;
-					case 13:
-						InitializeSFX();
-						renderText(text_0_loading, font_serif_white_14);
-						g_frameState++;
-						break;
-					case 14:
-						renderText(text_0_loading, font_serif_white_14);
-						g_frameState++;
-						break;
-					case 15:
-						renderText(text_0_loading, font_serif_white_14);
-						g_frameState++;
-						break;
-					case 16:
-						g_frameState++;
-						break;
-					default:
-						g_sceneState = 1;
-						g_frameState = 18;
-						break;
+					}
+					g_frameState.increment();
+				} else {
+					g_sceneState = 1;
+					g_frameState.set(18);
 				}
 				drawRect_gameTextScreen(text_0_loading_censor_rect, color_black.r, color_black.g, color_black.b);
 				break;
 			/* Videlectrix logo */
 			case 1:
-				if (g_frameState < 65) {
+				if (g_frameState.frame < 65) {
 					sprite_videlectrix_logo_ins.renderSprite_app();
 					renderText(text_1_presents_1, font_nokia_12);
 					renderText(text_1_presents_2, font_nokia_12);
 				}
-				if (g_frameState < 72) {
-					g_frameState++;
+				if (g_frameState.frame < 72) {
+					g_frameState.increment();
 				} else {
 					g_sceneState = 2;
-					g_frameState = 73;
+					g_frameState.set(73);
 				}
 				if (keyPressed(INPUT_START)) {
 					loadAndPlaySound(SFX_TROGADOR);
 					g_sceneState = 3;
-					g_frameState = 3; // 3 is intentional
+					g_frameState.set(3); // 3 is intentional
 					MM = MenuManager();
 				}
 				break;
 			/* Title Screen */
 			case 2:
-				if (g_frameState == 73) {
+				if (g_frameState.startingFrame(73)) {
 					playMusic(MUSIC_TITLE_SCREEN, false, DEFAULT_VOLUME_GAME);
 					renderOverlay = true;
 				}
-				if (g_frameState < 192) {
-					g_frameState++;
-				} else {
+				if (g_frameState.frame >= 192 || keyPressed(INPUT_START)) {
+					if (keyPressed(INPUT_START)) stopMusic();
 					loadAndPlaySound(SFX_TROGADOR);
 					g_sceneState = 3;
-					g_frameState = 3; // 3 is intentional
+					g_frameState.set(3); // 3 is intentional
 					MM = MenuManager();
+				} else {
+					g_frameState.increment();
 				}
 				sprite_title_screen_ins.renderSprite_game();
 				break;
 			/* Instructions Screen */
 			case 3:
-				g_frameState++;
+				g_frameState.increment();
 				renderOverlay = true;
 				MM.typeStuff();
 				MM.handlePageChange();
 				if (MM.page == 1) {
 					if (keyPressed(INPUT_START)) {
-						GM = GameManager(MM);
-						GM.levelInit();
-						updateText(&text_4_score_val, to_string(GM.score));
-						updateText(&text_4_mans_val, to_string(GM.mans));
-						updateText(&text_4_level_val, to_string(GM.level));
-						InitializeCutsceneObjects_trogdor(); // needed in case Big Head Mode was toggled
-						g_sceneState = 4;
+						if (gameState.autosave.mans >= 0) {
+							MM.continueHighlighted = true;
+							MM.cursor.dstrect.x = (int)((double)text_3_continue_1.dstrect.x / gameHiResMult) - (MM.cursor.dstrect.w * 2);
+							MM.cursor.dstrect.y = (int)(text_3_continue_1.dstrect.y / gameHiResMult);
+							g_sceneState = 3001;
+						} else {
+							MM.continueHighlighted = false;
+							GM = GameManager(MM);
+							GM.levelInit();
+							updateText(&text_4_score_val, to_string(GM.score));
+							updateText(&text_4_mans_val, to_string(GM.mans));
+							updateText(&text_4_level_val, to_string(GM.level));
+							InitializeCutsceneObjects_trogdor(); // needed in case Big Head Mode was toggled
+							g_sceneState = 4;
+						}
 					} else if (keyPressed(INPUT_SELECT)) {
-						menu_main.setOptionChoice(MENU_SCALING_INDEX, scalingType);
+						menu_cosmetic.setOptionChoice(MENU_SCALING_INDEX, scalingType);
 						menu_main.openMenu();
 						if (!menuMusicHasStarted) {
 							playMusic(MUSIC_MENU, true, DEFAULT_VOLUME_MUSIC);
@@ -338,7 +329,7 @@ int main(int argv, char** args) {
 							renderText(text_3_instructions_3, font_serif_white_6_mult);
 							renderText(text_3_instructions_4, font_serif_white_6_mult);
 							//renderText(text_3_instructions_5, font_serif_white_6_mult);
-							if (g_frameState % 4 < 2) {
+							if (g_frameState.frame % 4 < 2) {
 								renderText(text_3_click_anywhere_to_start, font_serif_red_8_mult);
 							}
 							renderText(text_3_quit, font_serif_white_6_mult);
@@ -387,7 +378,7 @@ int main(int argv, char** args) {
 							renderText(text_3_instructions_3, font_serif_white_6_mult);
 							renderText(text_3_instructions_4, font_serif_white_6_mult);
 							renderText(text_3_instructions_5, font_serif_white_6_mult);
-							if (g_frameState % 4 < 2) {
+							if (g_frameState.frame % 4 < 2) {
 								renderText(text_3_click_anywhere_to_start, font_serif_red_8_mult);
 							}
 							renderText(text_3_quit, font_serif_white_6_mult);
@@ -424,60 +415,261 @@ int main(int argv, char** args) {
 				}
 				renderText(text_3_page, font_serif_white_6_mult);
 				break;
+			/* Continue Screen */
+				case 3001:
+					g_frameState.increment();
+					if (keyPressed(INPUT_B) || keyPressed(INPUT_SELECT)) {
+						g_sceneState = 3;
+					} else if (keyPressed(INPUT_UP) || keyPressed(INPUT_DOWN)) {
+						MM.continueHighlighted = !MM.continueHighlighted;
+						if (MM.continueHighlighted) {
+							MM.cursor.dstrect.y = (int)(text_3_continue_1.dstrect.y / gameHiResMult);
+						} else {
+							MM.cursor.dstrect.y = (int)(text_3_continue_2.dstrect.y / gameHiResMult);
+						}
+					} else if (keyPressed(INPUT_A) || keyPressed(INPUT_START)) {
+						GM = GameManager(MM);
+						GM.levelInit();
+						updateText(&text_4_score_val, to_string(GM.score));
+						updateText(&text_4_mans_val, to_string(GM.mans));
+						updateText(&text_4_level_val, to_string(GM.level));
+						InitializeCutsceneObjects_trogdor(); // needed in case Big Head Mode was toggled
+						g_sceneState = 4;
+					}
+					sprite_trogdor_logo_ins.renderSprite_game();
+					renderText(text_3_continue_1, font_serif_white_8_mult);
+					renderText(text_3_continue_2, font_serif_white_8_mult);
+					MM.cursor.renderSprite_game();
+					break;
 			/* Options Menu */
 			case 301:
-				g_frameState++;
+				g_frameState.increment();
 				renderOverlay = false;
 				sprite_menu_background_ins.renderSprite_menu();
 				menu_main.renderMenu();
-				switch (menu_main.handleInput()) {
-#if !defined(THREEDS)
-					case MENU_SCALING_INDEX:
-						scalingType = MENU_SCALING->index;
-						windowSizeChanged = true;
-						break;
-#endif
-					case MENU_CHEATS_INDEX:
-						menu_cheats.openMenu();
+				switch (menu_main.handleInput(false)) {
+					case MENU_DIFFICULTY_INDEX:
+						menu_difficulty.openMenu();
 						g_sceneState = 302;
 						break;
-					case MENU_CREDITS_INDEX:
-						menu_credits.openNotebook();
+					case MENU_COSMETIC_INDEX:
+						menu_cosmetic.openMenu();
 						g_sceneState = 303;
 						break;
+					case MENU_OTHER_INDEX:
+						menu_other.openMenu();
+						g_sceneState = 304;
+						break;
+					case MENU_CHEATS_INDEX:
+						menu_cheats.openMenu();
+						g_sceneState = 305;
+						break;
+					case MENU_RESET_SETTINGS_INDEX:
+						menu_difficulty.setOptionChoice(MENU_PRESET_INDEX, MENU_PRESET->index_init);
+						menu_difficulty.setOptionChoice(MENU_EXTRA_LIVES_INDEX, MENU_EXTRA_LIVES->index_init);
+						menu_difficulty.setOptionChoice(MENU_LIVES_INTERVAL_INDEX, MENU_LIVES_INTERVAL->index_init);
+						menu_difficulty.setOptionChoice(MENU_PEASANT_PENALTY_INDEX, MENU_PEASANT_PENALTY->index_init);
+						menu_difficulty.setOptionChoice(MENU_KNIGHT_SPEED_INDEX, MENU_KNIGHT_SPEED->index_init);
+						menu_difficulty.setOptionChoice(MENU_ARROW_SPEED_INDEX, MENU_ARROW_SPEED->index_init);
+						menu_difficulty.setOptionChoice(MENU_ARCHER_FREQ_INDEX, MENU_ARCHER_FREQ->index_init);
+						menu_difficulty.setOptionChoice(MENU_TREASURE_HUTS_INDEX, MENU_TREASURE_HUTS->index_init);
+						menu_cosmetic.setOptionChoice(MENU_FRAME_RATE_INDEX, MENU_FRAME_RATE->index_init);
+						updateFrameRate();
+						menu_cosmetic.setOptionChoice(MENU_MUSIC_INDEX, MENU_MUSIC->index_init);
+						menu_cosmetic.setOptionChoice(MENU_COMMENT_FREQ_INDEX, MENU_COMMENT_FREQ->index_init);
+						menu_cosmetic.setOptionChoice(MENU_BIG_HEAD_MODE_INDEX, MENU_BIG_HEAD_MODE->index_init);
+						//menu_cosmetic.setOptionChoice(MENU_SCALING_INDEX, MENU_SCALING->index_init);
+						menu_other.setOptionChoice(MENU_STARTING_LEVEL_INDEX, MENU_STARTING_LEVEL->index_init);
+						menu_other.setOptionChoice(MENU_SHUFFLE_LEVELS_INDEX, MENU_SHUFFLE_LEVELS->index_init);
+						menu_other.setOptionChoice(MENU_KNIGHT_BEHAVIOR_INDEX, MENU_KNIGHT_BEHAVIOR->index_init);
+						menu_other.setOptionChoice(MENU_LEVEL_TRAN_INDEX, MENU_LEVEL_TRAN->index_init);
+						menu_cheats.setOptionChoice(MENU_INF_LIVES_INDEX, MENU_INF_LIVES->index_init);
+						menu_cheats.setOptionChoice(MENU_SPEEDY_MODE_INDEX, MENU_SPEEDY_MODE->index_init);
+						menu_cheats.setOptionChoice(MENU_NOCLIP_INDEX, MENU_NOCLIP->index_init);
+						menu_cheats.setOptionChoice(MENU_DEBUG_MODE_INDEX, MENU_DEBUG_MODE->index_init);
+						loadAndPlaySound(SFX_SBDOOJ_SHORT);
+						break;
+					case MENU_HIGHSCORES_INDEX:
+						menu_highscores_1.openNotebook();
+						menu_highscores_2.openNotebook();
+						menu_highscores_3.openNotebook();
+						updateHighScores();
+						g_sceneState = 306;
+						break;
+#if defined(WII)
+					case MENU_GBA_DEMO_INDEX:
+						menu_gba_demo.openNotebook();
+						g_sceneState = 307;
+						break;
+#endif
+					case MENU_CREDITS_INDEX:
+						menu_credits.openNotebook();
+						g_sceneState = 308;
+						break;
 					case MENU_QUIT_INDEX: // Quit Game
-						isRunning = false;
+						menu_quit.openMenu();
+						j = (rand() % 7);
+						QUIT_BACK->setDescriptionToIndex(j);
+						QUIT_CONFIRM->setDescriptionToIndex(j);
+						menu_quit.updateOptionPositions();
+						g_sceneState = 309;
 						break;
 					case -1: // Press B/Select
 						g_sceneState = 3;
 						pauseMusic();
+						saveGameState_settings();
+						MM = MenuManager();
 						break;
 					default:
 						break;
 				}
 				break;
-			/* Cheats Menu */
+			/* Difficulty Settings Menu */
 			case 302:
-				g_frameState++;
+				g_frameState.increment();
 				sprite_menu_background_ins.renderSprite_menu();
-				menu_cheats.renderMenu();
-				switch (menu_cheats.handleInput()) {
+				menu_difficulty.renderMenu();
+				switch (menu_difficulty.handleInput(true)) {
 					case -1: // Press B/Select
-						menu_main.setOptionChoice(MENU_SCALING_INDEX, scalingType);
+						menu_cosmetic.setOptionChoice(MENU_SCALING_INDEX, scalingType);
 						g_sceneState = 301;
 						break;
 					default:
 						break;
 				}
 				break;
-			/* Credits Screen */
+			/* Cosmetic Settings Menu */
 			case 303:
-				g_frameState++;
+				g_frameState.increment();
+				sprite_menu_background_ins.renderSprite_menu();
+				menu_cosmetic.renderMenu();
+				switch (menu_cosmetic.handleInput(false)) {
+#if !defined(THREEDS)
+					case MENU_SCALING_INDEX:
+						scalingType = MENU_SCALING->index;
+						windowSizeChanged = true;
+						break;
+#endif
+					case -1: // Press B/Select
+						menu_cosmetic.setOptionChoice(MENU_SCALING_INDEX, scalingType);
+						updateFrameRate();
+						g_sceneState = 301;
+						break;
+					default:
+						break;
+				}
+				break;
+			/* Other Settings Menu */
+			case 304:
+				g_frameState.increment();
+				sprite_menu_background_ins.renderSprite_menu();
+				menu_other.renderMenu();
+				switch (menu_other.handleInput(false)) {
+					case -1: // Press B/Select
+						menu_cosmetic.setOptionChoice(MENU_SCALING_INDEX, scalingType);
+						g_sceneState = 301;
+						break;
+					default:
+						break;
+				}
+				break;
+			/* Cheats Menu */
+			case 305:
+				g_frameState.increment();
+				sprite_menu_background_ins.renderSprite_menu();
+				menu_cheats.renderMenu();
+				switch (menu_cheats.handleInput(false)) {
+					case -1: // Press B/Select
+						menu_cosmetic.setOptionChoice(MENU_SCALING_INDEX, scalingType);
+						g_sceneState = 301;
+						break;
+					default:
+						break;
+				}
+				break;
+			/* High Scores Screen */
+			case 306:
+				g_frameState.increment();
+				sprite_menu_background_ins.renderSprite_menu();
+				menu_highscores_1.renderNotebook();
+				menu_highscores_2.renderNotebook();
+				menu_highscores_3.renderNotebook();
+				switch (menu_highscores_1.handleInput()) {
+					case -1: // Press B/Select
+						menu_cosmetic.setOptionChoice(MENU_SCALING_INDEX, scalingType);
+						g_sceneState = 301;
+						break;
+					default:
+						break;
+				}
+				break;
+#if defined(WII)
+			/* Trogba Demo Screen */
+			case 307:
+				g_frameState.increment();
+				sprite_menu_background_ins.renderSprite_menu();
+				menu_gba_demo.renderNotebook();
+				switch (menu_gba_demo.index) {
+					case 0:
+						if (keyPressed(INPUT_A)) {
+							prepare_rom();
+							menu_gba_demo.index = 1;
+						}
+						break;
+					case 1:
+						if (wait_for_gba() == 0) {
+							menu_gba_demo.index = 2;
+						}
+						break;
+					case 2:
+						SDL_Flip(windowScreen);
+						send_rom();
+						menu_gba_demo.index = 3;
+						break;
+					default:
+						break;
+				}
+				if (menu_gba_demo.index != 2 && (keyPressed(INPUT_B) || keyPressed(INPUT_SELECT))) {
+					menu_cosmetic.setOptionChoice(MENU_SCALING_INDEX, scalingType);
+					g_sceneState = 301;
+				}
+				break;
+#endif
+			/* Credits Screen */
+			case 308:
+				g_frameState.increment();
 				sprite_menu_background_ins.renderSprite_menu();
 				menu_credits.renderNotebook();
 				switch (menu_credits.handleInput()) {
 					case -1: // Press B/Select
-						menu_main.setOptionChoice(MENU_SCALING_INDEX, scalingType);
+						menu_cosmetic.setOptionChoice(MENU_SCALING_INDEX, scalingType);
+						g_sceneState = 301;
+						break;
+					default:
+						break;
+				}
+				break;
+			/* Quit Screen */
+			case 309:
+				g_frameState.increment();
+				sprite_menu_background_ins.renderSprite_menu();
+				menu_quit.renderMenu();
+				switch (menu_quit.handleInput(false)) {
+					case QUIT_BACK_INDEX:
+						menu_cosmetic.setOptionChoice(MENU_SCALING_INDEX, scalingType);
+						g_sceneState = 301;
+						break;
+					case QUIT_CONFIRM_INDEX:
+						stopMusic();
+						saveGameState_settings();
+						loadAndPlaySound(SFX_ITSOVER);
+						while (sfxChannel_strongBad != NULL) {
+							freeFinishedSoundChunks(); // wait for sound to stop playing
+						}
+						isRunning = false;
+						break;
+					case -1: // Press B/Select
+						menu_cosmetic.setOptionChoice(MENU_SCALING_INDEX, scalingType);
 						g_sceneState = 301;
 						break;
 					default:
@@ -504,7 +696,7 @@ int main(int argv, char** args) {
 							fadeMusic(1200);
 						}
 						g_sceneState = 8;
-						g_frameState = 256;
+						g_frameState.set(256);
 					}
 					if (!GM.burnination) {
 						GM.popPeasants();
@@ -532,26 +724,29 @@ int main(int argv, char** args) {
 #endif
 						}
 					} else {
+						if (MENU_KNIGHT_BEHAVIOR->isValue(1)) {
+							GM.updateKnightHome();
+						}
 						GM.updateKnightOffsetAndMove();
 					}
 				}
 				if (!GM.manually_paused) {
-					if (GM.dm_frameState >= 3) {
+					if (GM.dm_frameState.frame >= 4) {
 						GM.dm_updateFrameState();
 					}
-					if (GM.b_frameState >= 1) {
+					if (GM.b_frameState.frame >= 2) {
 						GM.b_updateFrameState();
 					}
-					if (GM.player.frameState >= 19) {
+					if (GM.player.frameState.frame >= 20) {
 						GM.player.updateFrameState();
 					}
 				}
 				if (GM.gameOver) {
 					g_sceneState = 5;
-					g_frameState = 321;
+					g_frameState.set(321);
 					// no break; it should continue directly to the next state on the current frame
 				} else {
-					if (GM.kick_frameState > 0) {
+					if (GM.kick_frameState.frame > 1) {
 						GM.kick_updateFrameState();
 					}
 					// render everything
@@ -576,7 +771,7 @@ int main(int argv, char** args) {
 						// Here, the original game renders a black circle around the top-right of the center of the screen...
 						// I think it's a mistake? I may add it later, but I'll leave it out for now.
 						renderTransparentForeground();
-						if ((frameCounter_global - GM.manually_paused) % 10 < 5) {
+						if ((int)((frameCounter_global - GM.manually_paused) * frameRateMult) % 10 < 5) {
 							renderText(text_4_paused_1, font_serif_white_6);
 							renderText(text_4_paused_2, font_serif_white_6);
 							renderText(text_4_paused_3, font_serif_white_6);
@@ -608,7 +803,7 @@ int main(int argv, char** args) {
 				GM.renderTopBar();
 				cutscene_game_over();
 				if (g_sceneState == 5) {
-					g_frameState++;
+					g_frameState.increment();
 				}
 				if (keyPressed(INPUT_START)) {
 					g_sceneState = 3;
@@ -617,7 +812,7 @@ int main(int argv, char** args) {
 					MM = MenuManager();
 				}
 				if (g_sceneState == 5) {
-					g_frameState++;
+					g_frameState.increment();
 				}
 				break;
 			/* Game (Treasure Hut) */
@@ -637,22 +832,22 @@ int main(int argv, char** args) {
 				} else {
 					GM.handle_treasure_hut();
 					GM.updateKnightOffsetAndMove();
-					if (GM.dm_frameState >= 3) {
+					if (GM.dm_frameState.frame >= 4) {
 						GM.dm_updateFrameState();
 					}
-					if (GM.b_frameState >= 1) {
+					if (GM.b_frameState.frame >= 2) {
 						GM.b_updateFrameState();
 					}
-					if (GM.player.frameState >= 19) {
+					if (GM.player.frameState.frame >= 20) {
 						GM.player.updateFrameState();
 					}
 				}
 				if (GM.gameOver) {
 					g_sceneState = 5;
-					g_frameState = 321;
+					g_frameState.set(321);
 					break;
 				} else {
-					if (GM.kick_frameState > 0) {
+					if (GM.kick_frameState.frame > 1) {
 						GM.kick_updateFrameState();
 					}
 					// render everything
@@ -673,7 +868,7 @@ int main(int argv, char** args) {
 						// Here, the original game renders a black circle around the top-right of the center of the screen...
 						// I think it's a mistake? I may add it later, but I'll leave it out for now.
 						renderTransparentForeground();
-						if ((frameCounter_global - GM.manually_paused) % 10 < 5) {
+						if ((int)((frameCounter_global - GM.manually_paused) * frameRateMult) % 10 < 5) {
 							renderText(text_4_paused_1, font_serif_white_6);
 							renderText(text_4_paused_2, font_serif_white_6);
 							renderText(text_4_paused_3, font_serif_white_6);
@@ -688,8 +883,8 @@ int main(int argv, char** args) {
 					}
 					if (!GM.inTreasureHut) {
 						GM.paused = false;
-						GM.player.sprite.dstrect.x = GM.store_x;
-						GM.player.sprite.dstrect.y = GM.store_y;
+						GM.player.sprite.setPosX(GM.store_x);
+						GM.player.sprite.setPosY(GM.store_y);
 						GM.set_level_background(levels[GM.levelIndex][0]);
 						g_sceneState = 4;
 					}
@@ -702,33 +897,35 @@ int main(int argv, char** args) {
 				renderBackground();
 				GM.renderTopBar();
 				GM.renderAndAnimateCottages();
-				if (((g_frameState - 1) / 2) % 2 == 0) {
+				if (((g_frameState.frame - 1) / 2) % 2 == 0) {
 					sprite_end_of_level_flash_ins.renderSprite_game();
 				}
-				switch (g_frameState) {
-					case 257:
-						if ((rand() % 100) < 10 * GM.sbVoiceMult) {
-							if ((rand() % 100) < 50) {
-								loadAndPlaySound(SFX_SBLEVELBEAT);
-							} else {
-								loadAndPlaySound(SFX_SB1);
+				if (g_frameState.frame) {
+					switch (g_frameState.frame) {
+						case 257:
+							if ((rand() % 100) < 10 * GM.sbVoiceMult) {
+								if ((rand() % 100) < 50) {
+									loadAndPlaySound(SFX_SBLEVELBEAT);
+								} else {
+									loadAndPlaySound(SFX_SB1);
+								}
 							}
-						}
-						break;
-					case 265:
-						if ((rand() % 100) < 10 * GM.sbVoiceMult) {
-							loadAndPlaySound(SFX_SBBEST);
-						}
-						break;
-					case 276:
-						g_sceneState = 9;
-						g_frameState = 277;
-						break;
-					default:
-						break;
+							break;
+						case 265:
+							if ((sfxChannel_strongBad == NULL) && ((rand() % 100) < 10 * GM.sbVoiceMult)) {
+								loadAndPlaySound(SFX_SBBEST);
+							}
+							break;
+						case 276:
+							g_sceneState = 9;
+							g_frameState.set(277);
+							break;
+						default:
+							break;
+					}
 				}
 				if (g_sceneState == 8) {
-					g_frameState++;
+					g_frameState.increment();
 				}
 				GM.player.sprite_end_of_level.renderSprite_game();
 				break;
@@ -736,75 +933,79 @@ int main(int argv, char** args) {
 			case 9:
 				GM.renderTopBar();
 				cutscene_level_beaten();
-				switch (g_frameState) {
-					case 285:
+				if (g_frameState.startingFrame(285)) {
+					GM.updateLevel(1);
+					GM.saveGameState_autosave();
+				} else if ((MENU_LEVEL_TRAN->isValue(0) && g_frameState.frame == 316) || (MENU_LEVEL_TRAN->isValue(1) && (keyPressed(INPUT_A) || keyPressed(INPUT_START)))) {
+					if (g_frameState.frame < 285) {
 						GM.updateLevel(1);
-						break;
-					case 316:
-						switch (GM.level) {
-							case 5:
-								g_sceneState = 11;
-								g_frameState = 420;
-								break;
-							case 9:
-								g_sceneState = 12;
-								g_frameState = 493;
-								break;
-							case 13:
-								g_sceneState = 13;
-								g_frameState = 567;
-								break;
-							case 17:
-								g_sceneState = 14;
-								g_frameState = 641;
-								break;
-							case 21:
-								g_sceneState = 15;
-								g_frameState = 710;
-								break;
-							case 25:
-								g_sceneState = 16;
-								g_frameState = 780;
-								break;
-							case 31:
-								g_sceneState = 17;
-								g_frameState = 853;
-								break;
-							case 35:
-								g_sceneState = 18;
-								g_frameState = 927;
-								break;
-							case 39:
-								g_sceneState = 19;
-								g_frameState = 1000;
-								break;
-							case 43:
-								g_sceneState = 20;
-								g_frameState = 1076;
-								break;
-							case 47:
-								g_sceneState = 21;
-								g_frameState = 1153;
-								break;
-							case 51:
-								g_sceneState = 22;
-								g_frameState = 1226;
-								break;
-							case 101:
-								g_sceneState = 23;
-								g_frameState = 1337;
-								break;
-							default:
-								GM.levelInit();
-								g_sceneState = 4;
-								break;
-						}
-						break;
-					default:
-						break;
+						GM.saveGameState_autosave();
+					}
+					switch (GM.level) {
+						case 5:
+							g_sceneState = 11;
+							g_frameState.set(420);
+							break;
+						case 9:
+							g_sceneState = 12;
+							g_frameState.set(493);
+							break;
+						case 13:
+							g_sceneState = 13;
+							g_frameState.set(567);
+							break;
+						case 17:
+							g_sceneState = 14;
+							g_frameState.set(641);
+							break;
+						case 21:
+							g_sceneState = 15;
+							g_frameState.set(710);
+							break;
+						case 25:
+							g_sceneState = 16;
+							g_frameState.set(780);
+							break;
+						case 31:
+							g_sceneState = 17;
+							g_frameState.set(853);
+							break;
+						case 35:
+							g_sceneState = 18;
+							g_frameState.set(927);
+							break;
+						case 39:
+							g_sceneState = 19;
+							g_frameState.set(1000);
+							break;
+						case 43:
+							g_sceneState = 20;
+							g_frameState.set(1076);
+							break;
+						case 47:
+							g_sceneState = 21;
+							g_frameState.set(1153);
+							break;
+						case 51:
+							g_sceneState = 22;
+							g_frameState.set(1226);
+							break;
+						case 101:
+							g_sceneState = 23;
+							g_frameState.set(1337);
+							break;
+						default:
+							GM.levelInit();
+							g_sceneState = 4;
+							break;
+					}
+					if (sound_channel_level_beaten != 99) {
+						sfxChannelArr[sound_channel_level_beaten] = NULL;
+					}
+					sound_channel_level_beaten = 99;
 				}
 				if (g_sceneState == 9) {
-					g_frameState++;
+					g_frameState.increment();
 				}
 				break;
 			/* Nothing */
@@ -819,7 +1020,7 @@ int main(int argv, char** args) {
 					g_sceneState = 4;
 				}
 				if (g_sceneState == 11) {
-					g_frameState++;
+					g_frameState.increment();
 				}
 				break;
 			/* Level 8 Interlude */
@@ -831,7 +1032,7 @@ int main(int argv, char** args) {
 					g_sceneState = 4;
 				}
 				if (g_sceneState == 12) {
-					g_frameState++;
+					g_frameState.increment();
 				}
 				break;
 			/* Level 12 Interlude */
@@ -843,7 +1044,7 @@ int main(int argv, char** args) {
 					g_sceneState = 4;
 				}
 				if (g_sceneState == 13) {
-					g_frameState++;
+					g_frameState.increment();
 				}
 				break;
 			/* Level 16 Interlude */
@@ -855,7 +1056,7 @@ int main(int argv, char** args) {
 					g_sceneState = 4;
 				}
 				if (g_sceneState == 14) {
-					g_frameState++;
+					g_frameState.increment();
 				}
 				break;
 			/* Level 20 Interlude */
@@ -867,7 +1068,7 @@ int main(int argv, char** args) {
 					g_sceneState = 4;
 				}
 				if (g_sceneState == 15) {
-					g_frameState++;
+					g_frameState.increment();
 				}
 				break;
 			/* Level 24 Interlude */
@@ -879,7 +1080,7 @@ int main(int argv, char** args) {
 					g_sceneState = 4;
 				}
 				if (g_sceneState == 16) {
-					g_frameState++;
+					g_frameState.increment();
 				}
 				break;
 			/* Level 30 Interlude */
@@ -891,7 +1092,7 @@ int main(int argv, char** args) {
 					g_sceneState = 4;
 				}
 				if (g_sceneState == 17) {
-					g_frameState++;
+					g_frameState.increment();
 				}
 				break;
 			/* Level 34 Interlude */
@@ -903,7 +1104,7 @@ int main(int argv, char** args) {
 					g_sceneState = 4;
 				}
 				if (g_sceneState == 18) {
-					g_frameState++;
+					g_frameState.increment();
 				}
 				break;
 			/* Level 38 Interlude */
@@ -915,7 +1116,7 @@ int main(int argv, char** args) {
 					g_sceneState = 4;
 				}
 				if (g_sceneState == 19) {
-					g_frameState++;
+					g_frameState.increment();
 				}
 				break;
 			/* Level 42 Interlude */
@@ -927,7 +1128,7 @@ int main(int argv, char** args) {
 					g_sceneState = 4;
 				}
 				if (g_sceneState == 20) {
-					g_frameState++;
+					g_frameState.increment();
 				}
 				break;
 			/* Level 46 Interlude */
@@ -939,7 +1140,7 @@ int main(int argv, char** args) {
 					g_sceneState = 4;
 				}
 				if (g_sceneState == 21) {
-					g_frameState++;
+					g_frameState.increment();
 				}
 				break;
 			/* Level 50 Interlude */
@@ -951,33 +1152,19 @@ int main(int argv, char** args) {
 					g_sceneState = 4;
 				}
 				if (g_sceneState == 22) {
-					g_frameState++;
+					g_frameState.increment();
 				}
 				break;
 			/* Level 100 Interlude (Credits) */
 			case 23:
 				GM.renderTopBar();
 				cutscene_level_100();
-				switch (g_frameState) {
-					case 1349:
-						if (rand() % 100 < 50 * GM.sbVoiceMult) {
-							loadAndPlaySound(SFX_SBWIN);
-						}
-						break;
-					case 1456:
-						if (rand() % 100 < 50 * GM.sbVoiceMult) {
-							loadAndPlaySound(SFX_SBWIN2);
-						}
-						break;
-					default:
-						break;
-				}
 				if (!cutsceneIsPlaying) {
 					GM.levelInit();
 					g_sceneState = 4;
 				}
 				if (g_sceneState == 23) {
-					g_frameState++;
+					g_frameState.increment();
 				}
 				break;
 			/* Nothing? (or maybe blank transition from Credits to High Scores Screen) */

@@ -400,13 +400,16 @@ music_wav/
 sfx_wav/
 music_ogg/
 sfx_ogg/
+sfx_all/
 music_psp/
+music_all/
 save.bin
 docs/
 *.dol
 *.elf
 fonts/
 graphics/
+graphics_unused/
 music/
 sfx/
 Preparation/
@@ -428,3 +431,4 @@ Makefile
 *.iso
 *.exe
 *.lib
+Trogdor-Reburninated.zip

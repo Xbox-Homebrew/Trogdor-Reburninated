@@ -1,11 +1,11 @@
 #include "include.h"
+#include "general.h"
 
 #ifndef WINDOW_H
 #define WINDOW_H
 
 constexpr auto gameWidth = 250;
 constexpr auto gameHeight = 180;
-constexpr auto DEFAULT_FRAME_RATE = 16;
 constexpr auto TWIPS_PER_PIXEL = 20;
 
 extern Uint16 gameHiResWidth;
@@ -19,7 +19,6 @@ extern Uint16 windowWidth;
 extern Uint16 windowHeight;
 extern double appWidthMult; // app scaling relative to window
 extern double appHeightMult; // app scaling relative to window
-extern Uint16 frameRate;
 extern Uint32 ticksPerFrame;
 
 #if !defined(SDL1)
@@ -39,16 +38,16 @@ extern SDL_Rect gameToWindowDstRect; // game screen mapping to window
 extern SDL_Rect menuToWindowDstRect; // menu mapping to window
 
 extern bool isWindowed;
-extern double screenScale; // the multiplier by which graphics should be scaled via SDL_gfx; caps out at 2
+extern float screenScale; // the multiplier by which graphics should be scaled via SDL_gfx; caps out at 2
 extern int trueScreenScaleInt; // the multiplier by which the screen should be scaled via renderer
-extern double trueScreenScaleFull; // the multiplier by which the screen should be scaled via renderer
-extern double screenScale_menu;
+extern float trueScreenScaleFull; // the multiplier by which the screen should be scaled via renderer
+extern float screenScale_menu;
 extern bool allowHiRes;
 extern Sint8 scalingType;
 
-extern double getScreenScale_app();
+extern float getScreenScale_app();
 extern void scaleGameByApp();
-extern double getScreenScale_game();
+extern float getScreenScale_game();
 extern void scaleAppByGame();
 extern void scaleGameAndApp();
 extern void repositionOverlay();

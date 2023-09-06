@@ -18,9 +18,11 @@ constexpr auto MAX_NUM_LOOT = 7;
 inline bool SDL_HasIntersection(const SDL_Rect *A, const SDL_Rect *B);
 #endif
 
+// FrameState class is in general.h
+
 class Cottage {
 	public:
-		Uint8 frameState;
+		FrameState frameState;
 		SpriteInstance sprite;
 		SpriteInstance sprite_fire;
 		bool burning;
@@ -32,25 +34,29 @@ class Cottage {
 
 class Knight {
 	public:
-		Uint8 frameState;
-		bool moving;      // used in toggleKnightMotion()
+		FrameState anim_frameState;
+		FrameState move_frameState;
+		bool moving;    // used in toggleKnightMotion()
 		SpriteInstance sprite;
 		Sint16 half_src_w;
 		Sint16 half_src_h;
 		Sint8 direction;
-		Sint16 home_x;    // the parent (x,y) coordinates
-		Sint16 home_y;    // the parent (x,y) coordinates
-		Sint16 offset_x;  // the offset relative to home
-		Sint16 offset_y;  // the offset relative to home
-		Knight(Sint16, Sint16, Sint8, bool);
+		float home_x;   // the parent (x,y) coordinates
+		float home_y;   // the parent (x,y) coordinates
+		float offset_x; // the offset relative to home
+		float offset_y; // the offset relative to home
+		float moveFrameCap;
+		float offsetConst;
+		Knight(Sint16, Sint16, Sint8, bool, float);
 		inline void updateCollision();
-		void updateHome(Sint8);
-		void updateFrameStateAndMove();
+		void updateHome(float);
+		void updateFrameState();
+		void move(float);
 };
 
 class Peasant {
 	public:
-		Uint8 frameState;
+		FrameState frameState;
 		SpriteInstance sprite;
 		Sint8 myHome;
 		bool stomped;
@@ -62,14 +68,14 @@ class Peasant {
 		Sint16 myTargetx;
 		Sint16 myTargety;
 		bool returning;
-		Sint16 timer;
+		float timer;
 		Peasant();
-		void updateFrameState(double);
+		void updateFrameState(float);
 };
 
 class Archer {
 	public:
-		Uint8 frameState;
+		FrameState frameState;
 		SpriteInstance sprite; // facing right == on the left; facing left == on the right
 		Archer(Sint16, Sint16, bool);
 		void updateFrameState();
@@ -77,10 +83,10 @@ class Archer {
 
 class Arrow {
 	public:
-		Uint8 frameState;
+		FrameState frameState;
 		SpriteInstance sprite;
 		Arrow(Sint16, Sint16, bool);
-		void updateFrameState();
+		void updateFrameState(Sint8);
 		void clear();
 };
 
@@ -93,20 +99,20 @@ class Loot {
 
 class Trogdor {
 	public:
-		Uint8 frameState;
+		FrameState frameState;
 		SpriteInstance sprite;
-		Uint8 fire_frameState;
+		FrameState fire_frameState;
 		SpriteInstance sprite_fire;
 		SpriteInstance sprite_death;
 		SpriteInstance sprite_end_of_level;
-		double spawnPos_x;
-		double spawnPos_y;
-		Sint8 invince;        // remaining invincibility time (after respawn)
+		float spawnPos_x;
+		float spawnPos_y;
+		float invince;        // remaining invincibility time (after respawn)
 		Sint8 x_offset;       // used for movement
 		Sint8 y_offset;       // used for movement
 		Sint8 moveSpeed;      // used for movement
 		Uint8 frameStateFlag; // used for movement
-		Trogdor(bool);
+		Trogdor(bool, Sint8);
 		void updateFrameState();
 		void resetPos(bool);
 		void updateBreathLoc();
@@ -122,8 +128,11 @@ class MenuManager {
 		Sint8 dkcIndex;    // the current index of the Noclip cheat input
 		Sint8 page;        // the current page number
 		Sint8 maxPageNum;  // maxPageNum
+		bool continueHighlighted; // the cursor index on the Continue screen
+		SpriteInstance cursor;
 		MenuManager();
-		bool handleCheat(Uint8, const Uint8 *, Uint8, Sint8 &, SoundEffect *);
+		bool handleCheat(Uint8, const Uint8 *, Uint8, Sint8 &, SoundEffect *, Sint8);
+		void unlockCheat(Uint8, Sint8);
 		void typeStuff();
 		void handlePageChange();
 };
@@ -142,9 +151,12 @@ class GameManager {
 		bool gameOver;                          // game is over
 		Uint8 level;                            // current level
 		Uint8 levelIndex;                       // current level index (determined by level)
-		double burnination;                     // amount of time left in burnination state
+		float burnination;                      // amount of time left in burnination state
 		Uint16 archerFrequency;                 // frequency at which archers appear
-		double burnRate;                        // rate at which the burnination meter decreases
+		Sint8 archerFrequencySetting;           // setting for archer frequency
+		Sint8 arrowSpeedSetting;                // arrow speed setting
+		Sint8 arrowSpeed;                       // speed of arrows
+		float burnRate;                         // rate at which the burnination meter decreases
 		Arrow arrowArrayL[MAX_NUM_ARROWS];      // array of Arrow objects (facing left, firing from right to left)
 		Arrow arrowArrayR[MAX_NUM_ARROWS];      // array of Arrow objects (facing right, firing from left to right)
 		Cottage hutArray[MAX_NUM_HUTS];         // array of Cottage objects
@@ -153,37 +165,48 @@ class GameManager {
 		Knight knightArray[MAX_NUM_KNIGHTS];    // array of Knight objects
 		Archer archerArray[2];                  // array of Archer objects
 		Trogdor player;                         // the player
-		Sint8 knightIncrement;                  // knight movement speed
+		Sint8 knightSpeedSetting;               // knight speed setting
+		float knightSpeed;                      // knight speed
+		float knightIncrement;                  // knight movement speed
+		Sint8 livesIntervalSetting;             // setting for lives interval
 		Uint16 extraMansBreak;                  // # of points for an extra life
 		Uint16 extraMansCounter;                // how many extra lives have been earned so far + 1
 		Uint16 maxExtraMans;                    // how many extra lives are allowed to be earned
 		bool arched;                            // previous death was to arrow
 		SpriteInstance sprite_dm;               // Death Message ("SWORDED!", "ARROWED!")
-		Uint8 dm_frameState;                    // Death Message ("SWORDED!", "ARROWED!")
-		Uint8 b_frameState;                     // BURNINATE! Message
+		FrameState dm_frameState;               // Death Message ("SWORDED!", "ARROWED!")
+		FrameState b_frameState;                // BURNINATE! Message
 		SpriteInstance sprite_bt;               // BURNINATE! Message Text
 		SpriteInstance sprite_bf;               // BURNINATE! Message Fire
 		bool b_visible;                         // BURNINATE! Message
 		SpriteInstance sprite_bmFull;           // burnination meter
 		SpriteInstance sprite_pm_on;            // peasantometer (on)
 		SpriteInstance sprite_pm_off;           // peasantometer (off)
-		Uint8 kick_frameState;                  // kick the machine
+		FrameState kick_frameState;             // kick the machine
 		bool treasureHutFound;                  // treasure hut has been found in this level
 		bool inTreasureHut;                     // player is currently in treasure hut
 		Sint16 treasureHutIndex;                // index of hut that contains treasure (0 = no treasure hut)
 		Sint8 treasureHutLevel;                 // the level index of the first treasure hut you entered; default is 0
 		Sint16 store_x;                         // old player X position (used for treasure huts)
 		Sint16 store_y;                         // old player Y position (used for treasure huts)
-		Sint16 treasureHut_timer;               // remaining time in treasure hut
+		float treasureHut_timer;                // remaining time in treasure hut
 		Loot lootArray[MAX_NUM_LOOT];           // array of Loot objects
-		double sbVoiceMult;                     // a multiplier for how often Strong Bad talks
+		float sbVoiceMult;                      // a multiplier for how often Strong Bad talks
 		bool bigHeadMode;                       // big head mode
+		Sint8 speedyMode;                       // speedy mode
 		bool debugMode;                         // debug mode
 		bool noclip;                            // noclip cheat to walk through cottages
+		bool peasantPenalty;                    // peasant penalty setting is enabled
+		Sint8 treasureHutSetting;               // treasure hut setting
+		Sint8 preset;                           // difficulty preset
+		bool shuffleLevels;                     // the setting for shuffelling levels
+		Uint8 levelIndices[33];                 // used for "Shuffle Levels" setting
+		Uint32 randomSeed;                      // random seed used for several things; saved for level shuffling
 		GameManager();
 		GameManager(MenuManager);
 		void resetAllSrcRects();
 		void setArcherFrequency();
+		void setBurnRate();
 		void setMusic();
 		void levelInit();
 		void set_level_background(Sint16);
@@ -232,8 +255,9 @@ class GameManager {
 		void renderKnights();
 		void renderPeasants();
 		void renderTrogdor();
-		void setBurnination(double);
+		void setBurnination(float);
 		void renderTopBar();
+		void saveGameState_autosave();
 };
 
 extern MenuManager MM;

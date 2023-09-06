@@ -11,36 +11,42 @@ void InitializeDisplay() {
 #if !defined(SDL1)
 	SDL_GetCurrentDisplayMode(0, &DM);
 #endif
-	videoSettings.widthSetting = DEFAULT_WIDTH;
-	videoSettings.heightSetting = DEFAULT_HEIGHT;
 #if defined(ANDROID)
 	SDL_SetHint(SDL_HINT_ORIENTATIONS, "Landscape");
 #endif
 	appWidth = 320;
 	appHeight = 240;
 	appSrcRect = { 0, 0, appWidth, appHeight };
-	frameRate = DEFAULT_FRAME_RATE;
 	ticksPerFrame = (Uint32)(1000 / frameRate);
 	setWidthHeightMults();
 
 	/* Set Window/Renderer */
 #if defined(PSP)
-	window = SDL_CreateWindow("Trogdor: Reburninated", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, videoSettings.widthSetting, videoSettings.heightSetting, SDL_WINDOW_SHOWN);
+	window = SDL_CreateWindow("Trogdor: Reburninated", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, DEFAULT_WIDTH, DEFAULT_HEIGHT, SDL_WINDOW_SHOWN);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 #elif defined(WII_U) || defined(VITA) || defined(SWITCH) || defined(ANDROID) || defined(XBOX)
-	window = SDL_CreateWindow("Trogdor: Reburninated", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, videoSettings.widthSetting, videoSettings.heightSetting, 0);
+	window = SDL_CreateWindow("Trogdor: Reburninated", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, DEFAULT_WIDTH, DEFAULT_HEIGHT, 0);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 #elif defined(WII) || defined(GAMECUBE) || defined(THREEDS)
+#if defined(WII) || defined(GAMECUBE)
+	if (frameRate <= 25) {
+		DEFAULT_WIDTH = 640;
+		DEFAULT_HEIGHT = 480;
+	} else {
+		DEFAULT_WIDTH = 320;
+		DEFAULT_HEIGHT = 240;
+	}
+#endif
 	SDL_WM_SetCaption("Trogdor: Reburninated", NULL);
-	windowScreen = SDL_SetVideoMode(videoSettings.widthSetting, videoSettings.heightSetting, 24, SDL_DOUBLEBUF);
+	windowScreen = SDL_SetVideoMode(DEFAULT_WIDTH, DEFAULT_HEIGHT, 24, SDL_DOUBLEBUF);
 #elif defined(SDL1)
 	SDL_WM_SetCaption("Trogdor: Reburninated", NULL);
 	SDL_putenv("SDL_VIDEO_WINDOW_POS=center");
-	windowScreen = SDL_SetVideoMode(videoSettings.widthSetting, videoSettings.heightSetting, 0, SDL_HWSURFACE | SDL_DOUBLEBUF);
+	windowScreen = SDL_SetVideoMode(DEFAULT_WIDTH, DEFAULT_HEIGHT, 0, SDL_HWSURFACE | SDL_DOUBLEBUF);
 #else
-	window = SDL_CreateWindow("Trogdor: Reburninated", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, videoSettings.widthSetting, videoSettings.heightSetting, SDL_WINDOW_RESIZABLE);
+	window = SDL_CreateWindow("Trogdor: Reburninated", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, DEFAULT_WIDTH, DEFAULT_HEIGHT, SDL_WINDOW_RESIZABLE);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 #endif
@@ -57,10 +63,10 @@ void InitializeSound() {
 		SDL_Log(Mix_GetError());
 #endif
 	}
-	setVolume_music(soundSettings.bgmVolume);
+	setVolume_music(gameState.settings_general.bgmVolume);
 	Mix_AllocateChannels(NUM_SOUND_CHANNELS);
-	Mix_Volume(SFX_CHANNEL_GAME, (int)(soundSettings.sfxVolume * 128.0 / 100));
-	Mix_Volume(SFX_CHANNEL_STRONG_BAD, (int)(soundSettings.sfxVolume * 128.0 / 100));
+	Mix_Volume(SFX_CHANNEL_GAME, (int)(gameState.settings_general.sfxVolume * 128.0 / 100));
+	Mix_Volume(SFX_CHANNEL_STRONG_BAD, (int)(gameState.settings_general.sfxVolume * 128.0 / 100));
 #endif
 }
 

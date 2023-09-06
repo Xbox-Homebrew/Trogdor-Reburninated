@@ -3,30 +3,16 @@
 #ifndef SOUND_LOGIC_H
 #define SOUND_LOGIC_H
 
-constexpr auto NUM_SOUND_EFFECTS_SFX = 14; // hardcoded; change this as more sound effects are added
+constexpr auto NUM_SOUND_EFFECTS_SFX = 13; // hardcoded; change this as more sound effects are added
 //constexpr auto NUM_SOUND_EFFECTS_GAMEMUSIC = 0;
-constexpr auto NUM_SOUND_EFFECTS_STRONG_BAD = 21;
+constexpr auto NUM_SOUND_EFFECTS_STRONG_BAD = 23;
 constexpr auto NUM_SOUND_CHANNELS = 8;
 constexpr auto NUM_SOUND_CHANNELS_SFX = NUM_SOUND_CHANNELS - 2;
 constexpr auto SFX_CHANNEL_GAME = -1; // any free channel
 constexpr auto SFX_CHANNEL_GAME_MUSIC = NUM_SOUND_CHANNELS - 2;
 constexpr auto SFX_CHANNEL_STRONG_BAD = NUM_SOUND_CHANNELS - 1; // highest channel
 
-#if !defined(PSP)
-constexpr auto MUSIC_TITLE_SCREEN = "music/title_screen.ogg";
-constexpr auto MUSIC_MENU = "music/menu.ogg";
-constexpr auto MUSIC_ENDING_1 = "music/ending_1.ogg";
-constexpr auto MUSIC_ENDING_2 = "music/ending_2.ogg";
-constexpr auto MUSIC_STINKOMAN_DAY = "music/stinkoman_level_1.ogg";
-constexpr auto MUSIC_STINKOMAN_EVENING = "music/stinkoman_level_2.ogg";
-constexpr auto MUSIC_STINKOMAN_NIGHT = "music/stinkoman_level_5.ogg";
-constexpr auto MUSIC_STINKOMAN_DAWN = "music/stinkoman_level_6.ogg";
-constexpr auto MUSIC_STINKOMAN_MIDPOINT = "music/stinkoman_level_9.ogg";
-constexpr auto MUSIC_STINKOMAN_LAST_10 = "music/stinkoman_level_10.ogg";
-constexpr auto MUSIC_STINKOMAN_BOSS = "music/stinkoman_boss_fight.ogg";
-constexpr auto MUSIC_STINKOMAN_HOMESTRETCH = "music/stinkoman_z_sabre.ogg";
-constexpr auto MUSIC_STINKOMAN_FINAL_BOSS = "music/stinkoman_mecha_trogador.ogg";
-#else
+#if defined(PSP)
 constexpr auto MUSIC_TITLE_SCREEN = "music/title_screen.bgm";
 constexpr auto MUSIC_MENU = "music/menu.bgm";
 constexpr auto MUSIC_ENDING_1 = "music/ending_1.bgm";
@@ -40,6 +26,34 @@ constexpr auto MUSIC_STINKOMAN_LAST_10 = "music/stinkoman_level_10.bgm";
 constexpr auto MUSIC_STINKOMAN_BOSS = "music/stinkoman_boss_fight.bgm";
 constexpr auto MUSIC_STINKOMAN_HOMESTRETCH = "music/stinkoman_z_sabre.bgm";
 constexpr auto MUSIC_STINKOMAN_FINAL_BOSS = "music/stinkoman_mecha_trogador.bgm";
+#elif defined(THREEDS) // an old 3DS can already barely keep up without needing to decompress OGG
+constexpr auto MUSIC_TITLE_SCREEN = "music/title_screen.wav";
+constexpr auto MUSIC_MENU = "music/menu.wav";
+constexpr auto MUSIC_ENDING_1 = "music/ending_1.wav";
+constexpr auto MUSIC_ENDING_2 = "music/ending_2.wav";
+constexpr auto MUSIC_STINKOMAN_DAY = "music/stinkoman_level_1.wav";
+constexpr auto MUSIC_STINKOMAN_EVENING = "music/stinkoman_level_2.wav";
+constexpr auto MUSIC_STINKOMAN_NIGHT = "music/stinkoman_level_5.wav";
+constexpr auto MUSIC_STINKOMAN_DAWN = "music/stinkoman_level_6.wav";
+constexpr auto MUSIC_STINKOMAN_MIDPOINT = "music/stinkoman_level_9.wav";
+constexpr auto MUSIC_STINKOMAN_LAST_10 = "music/stinkoman_level_10.wav";
+constexpr auto MUSIC_STINKOMAN_BOSS = "music/stinkoman_boss_fight.wav";
+constexpr auto MUSIC_STINKOMAN_HOMESTRETCH = "music/stinkoman_z_sabre.wav";
+constexpr auto MUSIC_STINKOMAN_FINAL_BOSS = "music/stinkoman_mecha_trogador.wav";
+#else
+constexpr auto MUSIC_TITLE_SCREEN = "music/title_screen.ogg";
+constexpr auto MUSIC_MENU = "music/menu.ogg";
+constexpr auto MUSIC_ENDING_1 = "music/ending_1.ogg";
+constexpr auto MUSIC_ENDING_2 = "music/ending_2.ogg";
+constexpr auto MUSIC_STINKOMAN_DAY = "music/stinkoman_level_1.ogg";
+constexpr auto MUSIC_STINKOMAN_EVENING = "music/stinkoman_level_2.ogg";
+constexpr auto MUSIC_STINKOMAN_NIGHT = "music/stinkoman_level_5.ogg";
+constexpr auto MUSIC_STINKOMAN_DAWN = "music/stinkoman_level_6.ogg";
+constexpr auto MUSIC_STINKOMAN_MIDPOINT = "music/stinkoman_level_9.ogg";
+constexpr auto MUSIC_STINKOMAN_LAST_10 = "music/stinkoman_level_10.ogg";
+constexpr auto MUSIC_STINKOMAN_BOSS = "music/stinkoman_boss_fight.ogg";
+constexpr auto MUSIC_STINKOMAN_HOMESTRETCH = "music/stinkoman_z_sabre.ogg";
+constexpr auto MUSIC_STINKOMAN_FINAL_BOSS = "music/stinkoman_mecha_trogador.ogg";
 #endif
 
 struct SoundEffect {
@@ -77,7 +91,7 @@ extern void stopMusic();
 extern void pauseMusic();
 extern void resumeMusic();
 extern void fadeMusic(Uint16);
-extern void loadAndPlaySound(SoundEffect *);
+extern Uint8 loadAndPlaySound(SoundEffect *);
 extern void makeSoundStatic(SoundEffect *);
 extern void freeFinishedSoundChunks();
 extern void setVolume_music(Uint8);
@@ -94,8 +108,7 @@ extern void setVolume_music(Uint8);
 #define SFX_BURNINATE     sfxArr[9]
 #define SFX_CUTSCENE      sfxArr[10]
 #define SFX_GAMEOVER      sfxArr[11]
-#define SFX_SHUTUP        sfxArr[12]
-#define SFX_HUSKYHEAD     sfxArr[13]
+#define SFX_SPEEDINCREASED sfxArr[12]
 #define SFX_SB1           sfxArr_strongBad[0]
 #define SFX_SB2           sfxArr_strongBad[1]
 #define SFX_SB3           sfxArr_strongBad[2]
@@ -117,6 +130,8 @@ extern void setVolume_music(Uint8);
 #define SFX_SBWIN         sfxArr_strongBad[18]
 #define SFX_SBWIN2        sfxArr_strongBad[19]
 #define SFX_SBWORST       sfxArr_strongBad[20]
+#define SFX_SBDOOJ_SHORT  sfxArr_strongBad[21]
+#define SFX_ITSOVER       sfxArr_strongBad[22]
 extern SoundEffect sfx_burn_hut;
 extern SoundEffect sfx_goldget;
 extern SoundEffect sfx_peasantscream;
@@ -150,7 +165,8 @@ extern SoundEffect sfx_kick;
 extern SoundEffect sfx_burninate;
 extern SoundEffect sfx_cutscene;
 extern SoundEffect sfx_gameover;
-extern SoundEffect sfx_shutup;
-extern SoundEffect sfx_huskyhead;
+extern SoundEffect sfx_speedincreased;
+extern SoundEffect sfx_sbdooj_short;
+extern SoundEffect sfx_itsover;
 
 #endif

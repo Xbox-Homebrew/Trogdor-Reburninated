@@ -5,6 +5,7 @@
 #include "sprite_objects.h"
 #include "config.h"
 #include "general.h"
+#include "input.h"
 
 ifstream ifile;
 
@@ -17,11 +18,13 @@ void InitializeFontsAndText() {
 	TTF_CloseFont(font_serif_white_14.font);
 
 	setFont(&font_serif_white_6_mult, "fonts/serif_v01.ttf", 8, 5, TTF_STYLE_NORMAL, color_white, false);
+	setFont(&font_serif_white_8_mult, "fonts/serif_v01.ttf", 8, 6.666, TTF_STYLE_NORMAL, color_white, false);
 	setFont(&font_serif_red_6_mult, "fonts/serif_v01.ttf", 8, 5, TTF_STYLE_NORMAL, color_red, false);
 	setFont(&font_serif_red_8_mult, "fonts/serif_v01.ttf", 8, 6.666, TTF_STYLE_NORMAL, color_red, false);
 	initializeFont_numbers(&font_serif_white_6_mult);
 	InitializeText_HomeScreen();
 	TTF_CloseFont(font_serif_white_6_mult.font);
+	TTF_CloseFont(font_serif_white_8_mult.font);
 	TTF_CloseFont(font_serif_red_6_mult.font);
 	TTF_CloseFont(font_serif_red_8_mult.font);
 
@@ -151,33 +154,12 @@ void InitializeText_HomeScreen() {
 			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_instructions_3), 101 * gameHiResMult);
 		SET_TEXT("Avoid knights and archers!", text_3_instructions_4, font_serif_white_6_mult,
 			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_instructions_4), 115 * gameHiResMult);
-#if defined(WII_U) || defined(VITA) || defined(WII) || defined(GAMECUBE) || defined(ANDROID) || defined(PSP) || defined(THREEDS) || defined(XBOX)
-		SET_TEXT("Press START to pause.", text_3_instructions_5, font_serif_white_6_mult,
+		SET_TEXT("Press " + INPUT_PAUSE + " to pause.", text_3_instructions_5, font_serif_white_6_mult,
 			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_instructions_5), 129 * gameHiResMult);
-		SET_TEXT("press START to START", text_3_click_anywhere_to_start, font_serif_red_8_mult,
+		SET_TEXT("press " + INPUT_PAUSE + " to START", text_3_click_anywhere_to_start, font_serif_red_8_mult,
 			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_click_anywhere_to_start), 129 * gameHiResMult);
-#if defined(GAMECUBE)
-		SET_TEXT("Press Z for OPTIONS.", text_3_quit, font_serif_white_6_mult,
+		SET_TEXT("Press " + INPUT_MISC + " for OPTIONS.", text_3_quit, font_serif_white_6_mult,
 			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_quit), 143 * gameHiResMult);
-#else
-		SET_TEXT("Press SELECT for OPTIONS.", text_3_quit, font_serif_white_6_mult,
-			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_quit), 143 * gameHiResMult);
-#endif
-#elif defined(SWITCH)
-		SET_TEXT("Press + to pause.", text_3_instructions_5, font_serif_white_6_mult,
-			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_instructions_5), 129 * gameHiResMult);
-		SET_TEXT("press + to START", text_3_click_anywhere_to_start, font_serif_red_8_mult,
-			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_click_anywhere_to_start), 129 * gameHiResMult);
-		SET_TEXT("Press - for OPTIONS.", text_3_quit, font_serif_white_6_mult,
-			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_quit), 143 * gameHiResMult);
-#else
-		SET_TEXT("Press ENTER/START to pause.", text_3_instructions_5, font_serif_white_6_mult,
-			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_instructions_5), 129 * gameHiResMult);
-		SET_TEXT("press ENTER/START to START", text_3_click_anywhere_to_start, font_serif_red_8_mult,
-			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_click_anywhere_to_start), 129 * gameHiResMult);
-		SET_TEXT("Press BACK/SELECT for OPTIONS.", text_3_quit, font_serif_white_6_mult,
-			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_quit), 143 * gameHiResMult);
-#endif
 		SET_TEXT("SECRET HINTS!!", text_3_hints_1, font_serif_red_6_mult,
 			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_hints_1), 59 * gameHiResMult);
 		SET_TEXT("-Don't let the peasants return", text_3_hints_2, font_serif_white_6_mult,
@@ -216,33 +198,12 @@ void InitializeText_HomeScreen() {
 			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_instructions_3), 87 * gameHiResMult);
 		SET_TEXT("Avoid knights and archers!", text_3_instructions_4, font_serif_white_6_mult,
 			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_instructions_4), 101 * gameHiResMult);
-#if defined(WII_U) || defined(VITA) || defined(WII) || defined(GAMECUBE) || defined(ANDROID) || defined(PSP) || defined(THREEDS) || defined(XBOX)
-		SET_TEXT("Press START to pause.", text_3_instructions_5, font_serif_white_6_mult,
+		SET_TEXT("Press " + INPUT_PAUSE + " to pause.", text_3_instructions_5, font_serif_white_6_mult,
 			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_instructions_5), 115 * gameHiResMult);
-		SET_TEXT("press START to START", text_3_click_anywhere_to_start, font_serif_red_8_mult,
+		SET_TEXT("press " + INPUT_PAUSE + " to START", text_3_click_anywhere_to_start, font_serif_red_8_mult,
 			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_click_anywhere_to_start), 129 * gameHiResMult);
-#if defined(GAMECUBE)
-		SET_TEXT("Press Z for OPTIONS.", text_3_quit, font_serif_white_6_mult,
+		SET_TEXT("Press " + INPUT_MISC + " for OPTIONS.", text_3_quit, font_serif_white_6_mult,
 			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_quit), 143 * gameHiResMult);
-#else
-		SET_TEXT("Press SELECT for OPTIONS.", text_3_quit, font_serif_white_6_mult,
-			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_quit), 143 * gameHiResMult);
-#endif
-#elif defined(SWITCH)
-		SET_TEXT("Press + to pause.", text_3_instructions_5, font_serif_white_6_mult,
-			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_instructions_5), 115 * gameHiResMult);
-		SET_TEXT("press + to START", text_3_click_anywhere_to_start, font_serif_red_8_mult,
-			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_click_anywhere_to_start), 129 * gameHiResMult);
-		SET_TEXT("Press - for OPTIONS.", text_3_quit, font_serif_white_6_mult,
-			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_quit), 143 * gameHiResMult);
-#else
-		SET_TEXT("Press ENTER/START to pause.", text_3_instructions_5, font_serif_white_6_mult,
-			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_instructions_5), 115 * gameHiResMult);
-		SET_TEXT("press ENTER/START to START", text_3_click_anywhere_to_start, font_serif_red_8_mult,
-			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_click_anywhere_to_start), 129 * gameHiResMult);
-		SET_TEXT("Press BACKSPACE/SELECT for OPTIONS.", text_3_quit, font_serif_white_6_mult,
-			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_quit), 143 * gameHiResMult);
-#endif
 		SET_TEXT("SECRET HINTS!!", text_3_hints_1, font_serif_red_6_mult,
 			OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_hints_1), 59 * gameHiResMult);
 		SET_TEXT("-Don't let the peasants return to their cottages", text_3_hints_2, font_serif_white_6_mult,
@@ -277,11 +238,11 @@ void InitializeText_HomeScreen() {
 	SET_TEXT(" ", text_3_controls_6, font_serif_white_6_mult,
 		OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_controls_6), 143 * gameHiResMult);
 #elif defined(THREEDS)
-	SET_TEXT(" ", text_3_controls_3, font_serif_white_6_mult,
+	SET_TEXT("-Press X to toggle overlay", text_3_controls_3, font_serif_white_6_mult,
 		OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_controls_3), 101 * gameHiResMult);
-	SET_TEXT("-Press X to toggle overlay", text_3_controls_5, font_serif_white_6_mult,
-		OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_controls_5), 101 * gameHiResMult);
-	SET_TEXT(" ", text_3_controls_6, font_serif_white_6_mult,
+	SET_TEXT("(Warning: Overlay may cause", text_3_controls_5, font_serif_white_6_mult,
+		OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_controls_5), 129 * gameHiResMult);
+	SET_TEXT("minor graphical issues on O3DS)", text_3_controls_6, font_serif_white_6_mult,
 		OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_controls_6), 143 * gameHiResMult);
 #elif defined(WII_U) || defined(SWITCH) || defined(GAMECUBE) || defined(ANDROID) || defined(XBOX)
 	SET_TEXT("-Press Y to change scaling", text_3_controls_3, font_serif_white_6_mult,
@@ -295,7 +256,7 @@ void InitializeText_HomeScreen() {
 		OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_controls_3), 101 * gameHiResMult);
 	SET_TEXT("-Press C / X to toggle overlay", text_3_controls_5, font_serif_white_6_mult,
 		OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_controls_5), 129 * gameHiResMult);
-	SET_TEXT("-Press F (KB) to toggle fullscreen", text_3_controls_6, font_serif_white_6_mult,
+	SET_TEXT("-Press F/ESC to toggle fullscreen", text_3_controls_6, font_serif_white_6_mult,
 		OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_controls_6), 143 * gameHiResMult);
 #endif
 #if defined(THREEDS)
@@ -317,6 +278,10 @@ void InitializeText_HomeScreen() {
 	SET_TEXT(" L -> Q      R -> E", text_3_keyboard_5, font_serif_white_6_mult,
 		OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_keyboard_5), 129 * gameHiResMult);
 #endif
+	SET_TEXT("Continue", text_3_continue_1, font_serif_white_8_mult,
+		OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_continue_1), 110 * gameHiResMult);
+	SET_TEXT("New Game", text_3_continue_2, font_serif_white_8_mult,
+		OBJ_TO_MID_SCREEN_X(gameHiResWidth, text_3_continue_2), 130 * gameHiResMult);
 }
 
 void InitializeText_Cutscenes() {
@@ -462,10 +427,8 @@ void InitializeSFX() {
 	sfx_cutscene.path = "sfx/cutscene.wav";
 	sfxArr[11] = &sfx_gameover;
 	sfx_gameover.path = "sfx/gameover.wav";
-	sfxArr[12] = &sfx_shutup;
-	sfx_shutup.path = "sfx/shutup.wav";
-	sfxArr[13] = &sfx_huskyhead;
-	sfx_huskyhead.path = "sfx/huskyhead.wav";
+	sfxArr[12] = &sfx_speedincreased;
+	sfx_speedincreased.path = "sfx/speedincreased.wav";
 	sfxArr_strongBad[0] = &sfx_sb1;
 	sfx_sb1.path = "sfx/trog_sb1.wav";
 	sfxArr_strongBad[1] = &sfx_sb2;
@@ -508,6 +471,10 @@ void InitializeSFX() {
 	sfx_sbwin2.path = "sfx/trog_sbwin2.wav";
 	sfxArr_strongBad[20] = &sfx_sbworst;
 	sfx_sbworst.path = "sfx/trog_sbworst.wav";
+	sfxArr_strongBad[21] = &sfx_sbdooj_short;
+	sfx_sbdooj_short.path = "sfx/sbdooj_short.wav";
+	sfxArr_strongBad[22] = &sfx_itsover;
+	sfx_itsover.path = "sfx/soundboard_itsover.wav";
 	for (i = 0; i < NUM_SOUND_EFFECTS_STRONG_BAD; i++) {
 		sfxArr_strongBad[i]->type = 1;
 	}
@@ -635,6 +602,8 @@ void InitializeSpritesPart2() {
 		0, 0, 2, 2, 1);
 	PREPARE_SPRITE(sprite_strong_bad_ending, (rootDir + "graphics/strong_bad_ending.bmp").c_str(),
 		0, 0, 1, 1, 1);
+	PREPARE_SPRITE(sprite_cursor, (rootDir + "graphics/menu_cursor.bmp").c_str(),
+		0, 0, 1, 1, 1);
 	PREPARE_SPRITE_MENU(sprite_menu_cursor, (rootDir + "graphics/menu_cursor.bmp").c_str(),
 		0, 0, 1, 1, 1);
 	PREPARE_SPRITE_MENU(sprite_menu_background, (rootDir + "graphics/options_menu.bmp").c_str(),
@@ -746,6 +715,7 @@ void destroyAllTextChars() {
 	//destroyTextChars(&font_serif_brown_6);
 	//destroyTextChars(&font_serif_brown_8);
 	//destroyTextChars(&font_serif_gray_6);
+	destroyTextChars(&font_serif_gray_8);
 	destroyTextChars(&font_serif_gray_12);
 	//destroyTextChars(&font_serif_orange_6);
 	destroyTextChars(&font_serif_red_6);
@@ -756,6 +726,7 @@ void destroyAllTextChars() {
 	destroyTextChars(&font_serif_white_6);
 	destroyTextChars(&font_serif_white_6_mult);
 	destroyTextChars(&font_serif_white_8);
+	destroyTextChars(&font_serif_white_8_mult);
 	destroyTextChars(&font_serif_white_9);
 	destroyTextChars(&font_serif_white_10);
 	destroyTextChars(&font_serif_white_14);
@@ -772,6 +743,7 @@ void closeAllFonts() {
 	TTF_CloseFont(font_serif_brown_6.font);
 	TTF_CloseFont(font_serif_brown_8.font);
 	TTF_CloseFont(font_serif_gray_6.font);
+	TTF_CloseFont(font_serif_gray_8.font);
 	TTF_CloseFont(font_serif_gray_12.font);
 	TTF_CloseFont(font_serif_orange_6.font);
 	TTF_CloseFont(font_serif_red_6.font);
@@ -782,6 +754,7 @@ void closeAllFonts() {
 	TTF_CloseFont(font_serif_white_6.font);
 	TTF_CloseFont(font_serif_white_6_mult.font);
 	TTF_CloseFont(font_serif_white_8.font);
+	TTF_CloseFont(font_serif_white_8_mult.font);
 	TTF_CloseFont(font_serif_white_9.font);
 	TTF_CloseFont(font_serif_white_10.font);
 	TTF_CloseFont(font_serif_white_14.font);
@@ -842,7 +815,11 @@ void HandleErrorText(const char *badPath) {
 #else
 	quickErrorTextRender_1("Press ENTER/START to quit.", 0.825);
 #endif
-	quickErrorTextRender_2("[Trogdor: Reburninated v1.1]", 0.9);
+#if defined(WII)
+	quickErrorTextRender_2("[Trogdor: Reburninated v2.01]", 0.9);
+#else
+	quickErrorTextRender_2("[Trogdor: Reburninated v2.0]", 0.9);
+#endif
 	TTF_CloseFont(font_commodore_error_1.font);
 	TTF_CloseFont(font_commodore_error_2.font);
 

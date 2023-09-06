@@ -290,7 +290,7 @@ SpriteInstance::SpriteInstance(SpriteObject *so, Sint8 frame, Sint8 form) {
     }
 }
 
-SpriteInstance::SpriteInstance(SpriteObject *so, Sint8 frame, Sint8 form, double x, double y) {
+SpriteInstance::SpriteInstance(SpriteObject *so, Sint8 frame, Sint8 form, float x, float y) {
     spriteObj = so;
     if (spriteObj->numFrames > 0) {
         srcrect.x = 0;
@@ -318,7 +318,7 @@ void SpriteInstance::setFrameAndForm(Sint8 frame, Sint8 form) {
 
 void SpriteInstance::animateFrame() {
     if (animFrameTime > 0) {
-        animFrameCounter++;
+        animFrameCounter += frameRateMult;
         while (animFrameCounter >= animFrameTime) {
             animFrameCounter -= animFrameTime;
             setFrame((animFrame + 1) % spriteObj->numFrames);
@@ -328,9 +328,23 @@ void SpriteInstance::animateFrame() {
 
 void SpriteInstance::animateForm() {
     if (animFormTime > 0) {
-        animFormCounter++;
+        animFormCounter += frameRateMult;
         while (animFormCounter >= animFormTime) {
             animFormCounter -= animFormTime;
+            setForm((animForm + 1) % spriteObj->numForms);
+        }
+    }
+}
+
+// used only in special cases; it is assumed that animFrameTime is > 0; animFormTime is unused
+void SpriteInstance::animateWrap() {
+    animFrameCounter += frameRateMult;
+    while (animFrameCounter >= animFrameTime) {
+        animFrameCounter -= animFrameTime;
+        if (animFrame + 1 < spriteObj->numFrames) {
+            setFrame(animFrame + 1);
+        } else {
+            setFrame((animFrame + 1) % spriteObj->numFrames);
             setForm((animForm + 1) % spriteObj->numForms);
         }
     }
@@ -359,40 +373,36 @@ void SpriteInstance::updateCurrSprite() {
 
 inline void SpriteInstance::moveSprite() {
     if (vel_x != 0) {
-        pos_x += vel_x;
-        dstrect.x = (Sint16)pos_x;
+        addPosX(vel_x);
     }
     if (vel_y != 0) {
-        pos_y += vel_y;
-        dstrect.y = (Sint16)pos_y;
+        addPosY(vel_y);
     }
 }
 
-void SpriteInstance::setPosX(double x) {
+void SpriteInstance::setPosX(float x) {
     pos_x = x;
     dstrect.x = (Sint16)x;
 }
 
-void SpriteInstance::setPosY(double y) {
+void SpriteInstance::setPosY(float y) {
     pos_y = y;
     dstrect.y = (Sint16)y;
 }
 
-void SpriteInstance::addPosX(double x) {
-    pos_x += x;
+void SpriteInstance::addPosX(float x) {
+    pos_x += (x * frameRateMult);
     dstrect.x = (Sint16)pos_x;
 }
 
-void SpriteInstance::addPosY(double y) {
-    pos_y += y;
+void SpriteInstance::addPosY(float y) {
+    pos_y += (y * frameRateMult);
     dstrect.y = (Sint16)pos_y;
 }
 
-void SpriteInstance::setPos(double x, double y) {
-    pos_x = x;
-    dstrect.x = (Sint16)x;
-    pos_y = y;
-    dstrect.y = (Sint16)y;
+void SpriteInstance::setPos(float x, float y) {
+    setPosX(x);
+    setPosY(y);
 }
 
 void SpriteInstance::renderSprite_game() {
@@ -461,7 +471,7 @@ void SpriteInstance::renderEmptyOverlay() {
 #endif
 }
 
-void SpriteInstance::prepareAsCSO(double x, double y, Sint8 frame, Sint8 form, Sint8 frameTime, Sint8 formTime, double vx, double vy) {
+void SpriteInstance::prepareAsCSO(float x, float y, Sint8 frame, Sint8 form, Sint8 frameTime, Sint8 formTime, float vx, float vy) {
     setPos(x, y);
     setFrameAndForm(frame, form);
     animFrameTime = frameTime;
@@ -473,15 +483,22 @@ void SpriteInstance::prepareAsCSO(double x, double y, Sint8 frame, Sint8 form, S
     isActive = true;
 }
 
-void SpriteInstance::renderAsCSO(bool useTwips = true) {
+void SpriteInstance::renderAsCSO(bool useWrap = false) {
     if (isActive) {
-        if (useTwips) {
-            renderSpriteAsCSO_game();
-        } else if (SDL_HasIntersection(&gameSrcRect_unscaled, &dstrect)) {
+        //if (useTwips) {
+        //    renderSpriteAsCSO_game();
+        //} else if (SDL_HasIntersection(&gameSrcRect_unscaled, &dstrect)) {
+        //    renderSprite_game();
+        //}
+        if (SDL_HasIntersection(&gameSrcRect_unscaled, &dstrect)) {
             renderSprite_game();
         }
         moveSprite();
-        animateFrame();
-        animateForm();
+        if (useWrap) {
+            animateWrap();
+        } else {
+            animateFrame();
+            animateForm();
+        }
     }
 }

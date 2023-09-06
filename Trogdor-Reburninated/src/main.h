@@ -6,6 +6,11 @@
 #include "config.h"
 #include "window.h"
 #include "classes.h"
+#if defined(WII)
+extern "C" {
+#include "goombasend.h"
+}
+#endif
 
 #ifndef MAIN_H
 #define MAIN_H
@@ -14,8 +19,8 @@
 bool isRunning;
 bool windowSizeChanged;
 Sint16 g_sceneState;
-Sint16 g_frameState;
-Uint16 rand_var;
+FrameState g_frameState;
+Uint32 rand_var;
 SDL_Event event;
 
 /* General-use Variables */
@@ -33,6 +38,19 @@ Uint32 deltaTime;
 /* Framerate */
 Uint32 frameTime;
 Uint32 frameCounter_global;
+#if defined(THREEDS)
+Uint8 frameRate = 30;
+#elif defined(WII)
+Uint8 frameRate = 25;
+#else
+Uint8 frameRate = 60;
+#endif
+#if defined(PSP) // I have no idea why this is required, but it is
+float frameRateMult = static_cast<float>(ORIGINAL_FRAME_RATE) / 60;
+#else
+float frameRateMult = static_cast<float>(ORIGINAL_FRAME_RATE) / frameRate;
+#endif
+Uint16 popRandVal = frameRate * 100 / ORIGINAL_FRAME_RATE;
 
 /* SDL Input */
 #if !defined(SDL1) && !defined(PSP)
@@ -67,17 +85,26 @@ Sint32 mouseInput_y_last;
 #endif
 
 /* Save File */
-SDL_RWops *saveFile;
-SoundSettings soundSettings;
-VideoSettings videoSettings;
+SDL_RWops *saveBin;
+GameState gameState;
 
 /* Cutscenes */
 bool cutsceneIsPlaying = false;
 
 /* Menus */
 Menu menu_main;
+Menu menu_difficulty;
+Menu menu_cosmetic;
+Menu menu_other;
 Menu menu_cheats;
+MenuNotebook menu_highscores_1;
+MenuNotebook menu_highscores_2;
+MenuNotebook menu_highscores_3;
+#if defined(WII)
+MenuNotebook menu_gba_demo;
+#endif
 MenuNotebook menu_credits;
+Menu menu_quit;
 
 /* Audio */
 #if defined(PSP)
@@ -125,8 +152,9 @@ SoundEffect sfx_kick;
 SoundEffect sfx_burninate;
 SoundEffect sfx_cutscene;
 SoundEffect sfx_gameover;
-SoundEffect sfx_shutup;
-SoundEffect sfx_huskyhead;
+SoundEffect sfx_speedincreased;
+SoundEffect sfx_sbdooj_short;
+SoundEffect sfx_itsover;
 
 /* Sprite Objects */
 SpriteObject sprite_videlectrix_logo;
@@ -185,6 +213,7 @@ SpriteObject sprite_kerrek;
 SpriteObject sprite_kerrek_smoked;
 SpriteObject sprite_strong_bad;
 SpriteObject sprite_strong_bad_ending;
+SpriteObject sprite_cursor;
 SpriteObject sprite_menu_cursor;
 SpriteObject sprite_menu_background;
 SpriteInstance sprite_menu_background_ins;
@@ -205,6 +234,7 @@ SDL_Color color_brown  = { 153, 102,   0 };
 FontObject font_serif_brown_6;
 FontObject font_serif_brown_8;
 FontObject font_serif_gray_6;
+FontObject font_serif_gray_8;
 FontObject font_serif_gray_12;
 FontObject font_serif_orange_6;
 FontObject font_serif_red_6;
@@ -215,6 +245,7 @@ FontObject font_serif_red_12;
 FontObject font_serif_white_6;
 FontObject font_serif_white_6_mult;
 FontObject font_serif_white_8;
+FontObject font_serif_white_8_mult;
 FontObject font_serif_white_9;
 FontObject font_serif_white_10;
 FontObject font_serif_white_14;
@@ -264,7 +295,8 @@ TextObject text_3_hints_2a;
 TextObject text_3_hints_3a;
 TextObject text_3_hints_4a;
 TextObject text_3_hints_5a;
-TextObject text_3_coming_soon_4a;
+TextObject text_3_continue_1;
+TextObject text_3_continue_2;
 TextObject text_4_score_val;
 TextObject text_4_mans_val;
 TextObject text_4_level_val;
@@ -388,7 +420,6 @@ Uint16 windowWidth;
 Uint16 windowHeight;
 double appWidthMult;
 double appHeightMult;
-Uint16 frameRate;
 Uint32 ticksPerFrame;
 
 #if !defined(SDL1)
@@ -407,10 +438,10 @@ SDL_Rect gameToWindowDstRect = { 0, 0, gameWidth, gameHeight };
 SDL_Rect menuToWindowDstRect = { 0, 0, appWidth, appHeight };
 
 bool isWindowed = true;
-double screenScale = 1;
+float screenScale = 1;
 int trueScreenScaleInt = 1;
-double trueScreenScaleFull = 1;
-double screenScale_menu = 1;
+float trueScreenScaleFull = 1;
+float screenScale_menu = 1;
 bool allowHiRes = true;
 #if defined(VITA) || defined(WII_U) || defined(SWITCH)
 Sint8 scalingType = 1;
@@ -426,5 +457,12 @@ SDL_DisplayMode DM;
 /* Managers */
 MenuManager MM;
 GameManager GM;
+
+#if defined(WII)
+/* GoombaSend */
+u8 *resbuf, *cmdbuf;
+volatile u32 transval = 0;
+volatile u32 resval = 0;
+#endif
 
 #endif

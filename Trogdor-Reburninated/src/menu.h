@@ -1,14 +1,15 @@
 #include "include.h"
 #include "text_objects.h"
 #include "sprite_objects.h"
+#include "config.h"
 
 #ifndef MENU_H
 #define MENU_H
 
-constexpr auto MAX_NUM_OPTION_CHOICES = 10;
-constexpr auto MAX_NUM_MENU_OPTIONS = 12;
-constexpr auto MAX_NUM_MENU_PAGES = 5;
-constexpr auto MAX_NUM_MENU_LINES = 9;
+constexpr auto MAX_NUM_OPTION_CHOICES = 11;
+constexpr auto MAX_NUM_MENU_OPTIONS = 9;
+constexpr auto MAX_NUM_MENU_PAGES = 7;
+constexpr auto MAX_NUM_MENU_LINES = 12;
 
 /* @brief A page of text within a menu.
 * 
@@ -81,36 +82,43 @@ class MenuNotebook {
 * @param index The index of the currently-selected choice.
 * @param index_init The default index.
 * @param choicesWrap Whether or not navigating past the last option choice should wrap around to the first choice, and vice-versa.
-* @param optionIsLocked If the option is locked, its choices do not appear, its index cannot change, and the alt description is used in place of the normal description.
+* @param optionCanFreeze Whether or not an option can be frozen.
+* @param optionIsFrozen If the option is frozen, its index cannot change, and its text is grayed out.
+* @param optionIsLocked If the option is locked, then in addition to being frozen, its choices do not appear and the alt description is used in place of the normal description.
 */
 class MenuOption {
 	public:
 		TextObject label;
-		const char *labelPtr;
+		std::string labelPtr;
 		TextObject choice;
-		const char **choicePtr;
+		std::string *choicePtr;
 		TextObject description_1;
 		TextObject description_2;
 		TextObject description_3;
-		const char **descPtr_1;
-		const char **descPtr_2;
-		const char **descPtr_3;
-		const char *altDescPtr;
+		std::string *descPtr_1;
+		std::string *descPtr_2;
+		std::string *descPtr_3;
+		std::string altDescPtr;
 		Uint8 numChoices;
 		bool oneDescription;
 		bool choiceIsAllowed[MAX_NUM_OPTION_CHOICES];
 		Sint8 index;
 		Sint8 index_init;
 		bool choicesWrap;
+		bool optionCanFreeze;
+		bool optionIsFrozen;
 		bool optionIsLocked;
 		MenuOption() {
 		}
-		void prepareMenuOption(const char [], const char *[], const char *[], const char *[], const char *[], const char [], Uint8, bool, Uint8, bool);
+		void prepareMenuOption(const char [], std::string [], std::string [], std::string [], std::string [], std::string, Uint8, bool, Sint8, bool, bool);
+		void setFrozen(bool, Sint8);
 		void setLocked(bool);
+		void initLabel();
 		void updateLabel();
 		void initChoicesAndDescriptions();
-		void updateChoice();
-		void updateDescription();
+		void updateChoice(Sint8);
+		void updateDescription(Sint8);
+		void setDescriptionToIndex(Uint8);
 		void render(bool);
 		bool isValue(Uint8);
 };
@@ -165,7 +173,7 @@ class Menu {
 		Menu() {
 		}
 		void prepareMenu(Uint8, Uint8, SpriteObject *, bool, Sint8, Sint16, Sint16, Sint16, Sint16, Sint16, Sint16, Sint16, Sint8, Sint8, bool);
-		Sint8 handleInput();
+		Sint8 handleInput(bool);
 		void incrementOption();
 		void decrementOption();
 		void incrementCurrOptionChoice();
@@ -179,43 +187,111 @@ class Menu {
 };
 
 extern Menu menu_main;
+constexpr auto MENU_DIFFICULTY_INDEX = 0;
+constexpr auto MENU_COSMETIC_INDEX = 1;
+constexpr auto MENU_OTHER_INDEX = 2;
+constexpr auto MENU_CHEATS_INDEX = 3;
+constexpr auto MENU_RESET_SETTINGS_INDEX = 4;
+constexpr auto MENU_HIGHSCORES_INDEX = 5;
+#if defined(WII)
+constexpr auto MENU_GBA_DEMO_INDEX = 6;
+constexpr auto MENU_CREDITS_INDEX = 7;
+constexpr auto MENU_QUIT_INDEX = 8;
+constexpr auto MENU_NUM_OPTIONS = 9;
+#else
+constexpr auto MENU_CREDITS_INDEX = 6;
+constexpr auto MENU_QUIT_INDEX = 7;
+constexpr auto MENU_NUM_OPTIONS = 8;
+#endif
+#define MENU_DIFFICULTY     menu_main.options[MENU_DIFFICULTY_INDEX]
+#define MENU_COSMETIC       menu_main.options[MENU_COSMETIC_INDEX]
+#define MENU_OTHER          menu_main.options[MENU_OTHER_INDEX]
+#define MENU_CHEATS         menu_main.options[MENU_CHEATS_INDEX]
+#define MENU_RESET_SETTINGS menu_main.options[MENU_RESET_SETTINGS_INDEX]
+#define MENU_HIGHSCORES     menu_main.options[MENU_HIGHSCORES_INDEX]
+#if defined(WII)
+#define MENU_GBA_DEMO       menu_main.options[MENU_GBA_DEMO_INDEX]
+#endif
+#define MENU_CREDITS        menu_main.options[MENU_CREDITS_INDEX]
+#define MENU_QUIT           menu_main.options[MENU_QUIT_INDEX]
+
+extern Menu menu_difficulty;
+constexpr auto MENU_PRESET_INDEX = 0;
+constexpr auto MENU_EXTRA_LIVES_INDEX = 1;
+constexpr auto MENU_LIVES_INTERVAL_INDEX = 2;
+constexpr auto MENU_PEASANT_PENALTY_INDEX = 3;
+constexpr auto MENU_KNIGHT_SPEED_INDEX = 4;
+constexpr auto MENU_ARROW_SPEED_INDEX = 5;
+constexpr auto MENU_ARCHER_FREQ_INDEX = 6;
+constexpr auto MENU_TREASURE_HUTS_INDEX = 7;
+constexpr auto DIFFICULTY_NUM_OPTIONS = 8;
+#define MENU_PRESET          menu_difficulty.options[MENU_PRESET_INDEX]
+#define MENU_EXTRA_LIVES     menu_difficulty.options[MENU_EXTRA_LIVES_INDEX]
+#define MENU_LIVES_INTERVAL  menu_difficulty.options[MENU_LIVES_INTERVAL_INDEX]
+#define MENU_PEASANT_PENALTY menu_difficulty.options[MENU_PEASANT_PENALTY_INDEX]
+#define MENU_KNIGHT_SPEED    menu_difficulty.options[MENU_KNIGHT_SPEED_INDEX]
+#define MENU_ARROW_SPEED     menu_difficulty.options[MENU_ARROW_SPEED_INDEX]
+#define MENU_ARCHER_FREQ     menu_difficulty.options[MENU_ARCHER_FREQ_INDEX]
+#define MENU_TREASURE_HUTS   menu_difficulty.options[MENU_TREASURE_HUTS_INDEX]
+
+extern Menu menu_cosmetic;
+constexpr auto MENU_FRAME_RATE_INDEX = 0;
+constexpr auto MENU_MUSIC_INDEX = 1;
+constexpr auto MENU_COMMENT_FREQ_INDEX = 2;
+constexpr auto MENU_BIG_HEAD_MODE_INDEX = 3;
+constexpr auto MENU_SCALING_INDEX = 4;
+constexpr auto COSMETIC_NUM_OPTIONS = 5;
+#define MENU_FRAME_RATE    menu_cosmetic.options[MENU_FRAME_RATE_INDEX]
+#define MENU_MUSIC         menu_cosmetic.options[MENU_MUSIC_INDEX]
+#define MENU_COMMENT_FREQ  menu_cosmetic.options[MENU_COMMENT_FREQ_INDEX]
+#define MENU_BIG_HEAD_MODE menu_cosmetic.options[MENU_BIG_HEAD_MODE_INDEX]
+#define MENU_SCALING       menu_cosmetic.options[MENU_SCALING_INDEX]
+
+extern Menu menu_other;
+constexpr auto MENU_STARTING_LEVEL_INDEX = 0;
+constexpr auto MENU_SHUFFLE_LEVELS_INDEX = 1;
+constexpr auto MENU_KNIGHT_BEHAVIOR_INDEX = 2;
+constexpr auto MENU_LEVEL_TRAN_INDEX = 3;
+constexpr auto OTHER_NUM_OPTIONS = 4;
+#define MENU_STARTING_LEVEL  menu_other.options[MENU_STARTING_LEVEL_INDEX]
+#define MENU_SHUFFLE_LEVELS  menu_other.options[MENU_SHUFFLE_LEVELS_INDEX]
+#define MENU_KNIGHT_BEHAVIOR menu_other.options[MENU_KNIGHT_BEHAVIOR_INDEX]
+#define MENU_LEVEL_TRAN      menu_other.options[MENU_LEVEL_TRAN_INDEX]
+
 extern Menu menu_cheats;
+constexpr auto MENU_INF_LIVES_INDEX = 0;
+constexpr auto MENU_SPEEDY_MODE_INDEX = 1;
+constexpr auto MENU_NOCLIP_INDEX = 2;
+constexpr auto MENU_DEBUG_MODE_INDEX = 3;
+constexpr auto CHEAT_NUM_OPTIONS = 4;
+#define MENU_INF_LIVES   menu_cheats.options[MENU_INF_LIVES_INDEX]
+#define MENU_SPEEDY_MODE menu_cheats.options[MENU_SPEEDY_MODE_INDEX]
+#define MENU_NOCLIP      menu_cheats.options[MENU_NOCLIP_INDEX]
+#define MENU_DEBUG_MODE  menu_cheats.options[MENU_DEBUG_MODE_INDEX]
+
+extern MenuNotebook menu_highscores_1;
+extern MenuNotebook menu_highscores_2;
+extern MenuNotebook menu_highscores_3;
+
 extern MenuNotebook menu_credits;
 
-constexpr auto MENU_STARTING_LEVEL_INDEX = 0;
-constexpr auto MENU_STARTING_LIVES_INDEX = 1;
-constexpr auto MENU_EXTRA_LIVES_INDEX = 2;
-constexpr auto MENU_MUSIC_INDEX = 3;
-constexpr auto MENU_PEASANT_PENALTY_INDEX = 4;
-constexpr auto MENU_TREASURE_HUTS_INDEX = 5;
-constexpr auto MENU_ARCHER_FREQ_INDEX = 6;
-constexpr auto MENU_COMMENT_FREQ_INDEX = 7;
-constexpr auto MENU_SCALING_INDEX = 8;
-constexpr auto MENU_CHEATS_INDEX = 9;
-constexpr auto MENU_CREDITS_INDEX = 10;
-constexpr auto MENU_QUIT_INDEX = 11;
-constexpr auto MENU_NUM_OPTIONS = 12;
-#define MENU_STARTING_LEVEL  menu_main.options[MENU_STARTING_LEVEL_INDEX]
-#define MENU_STARTING_LIVES  menu_main.options[MENU_STARTING_LIVES_INDEX]
-#define MENU_EXTRA_LIVES     menu_main.options[MENU_EXTRA_LIVES_INDEX]
-#define MENU_MUSIC           menu_main.options[MENU_MUSIC_INDEX]
-#define MENU_PEASANT_PENALTY menu_main.options[MENU_PEASANT_PENALTY_INDEX]
-#define MENU_TREASURE_HUTS   menu_main.options[MENU_TREASURE_HUTS_INDEX]
-#define MENU_ARCHER_FREQ     menu_main.options[MENU_ARCHER_FREQ_INDEX]
-#define MENU_COMMENT_FREQ    menu_main.options[MENU_COMMENT_FREQ_INDEX]
-#define MENU_SCALING         menu_main.options[MENU_SCALING_INDEX]
-#define MENU_CHEATS          menu_main.options[MENU_CHEATS_INDEX]
-#define MENU_CREDITS         menu_main.options[MENU_CREDITS_INDEX]
-#define MENU_QUIT            menu_main.options[MENU_QUIT_INDEX]
+extern MenuNotebook menu_gba_demo;
 
-constexpr auto CHEATS_INF_LIVES_INDEX = 0;
-constexpr auto CHEAT_DEBUG_MODE_INDEX = 1;
-constexpr auto CHEAT_BIG_HEAD_MODE_INDEX = 2;
-constexpr auto CHEAT_NOCLIP_INDEX = 3;
-constexpr auto CHEAT_NUM_OPTIONS = 4;
-#define CHEATS_INF_LIVES	 menu_cheats.options[CHEATS_INF_LIVES_INDEX]
-#define CHEAT_DEBUG_MODE     menu_cheats.options[CHEAT_DEBUG_MODE_INDEX]
-#define CHEAT_BIG_HEAD_MODE  menu_cheats.options[CHEAT_BIG_HEAD_MODE_INDEX]
-#define CHEAT_NOCLIP         menu_cheats.options[CHEAT_NOCLIP_INDEX]
+extern Menu menu_quit;
+constexpr auto QUIT_BACK_INDEX = 0;
+constexpr auto QUIT_CONFIRM_INDEX = 1;
+constexpr auto QUIT_NUM_OPTIONS = 2;
+#define QUIT_BACK    menu_quit.options[QUIT_BACK_INDEX]
+#define QUIT_CONFIRM menu_quit.options[QUIT_CONFIRM_INDEX]
+
+extern State_Settings_General getSettingsGeneral();
+extern State_Settings_Difficulty getSettingsDifficulty();
+extern State_Settings_Cosmetic getSettingsCosmetic();
+extern State_Settings_Other getSettingsOther();
+extern State_Settings_Cheats getSettingsCheats();
+extern State_Settings_Unlocks getSettingsUnlocks();
+extern void updateFrameRate();
+extern void setPreset(Sint8);
+extern void updateHighScores();
 
 #endif
